@@ -68,8 +68,22 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 $login_page = curl_exec($ch);
 curl_close($ch);
 
-preg_match("/<form method=\"post\" action=\"([^\"]+)/", $login_page, $login_url);
+preg_match("/<form method=\"post\" action=\"([^\"]+)/i", $login_page, $login_url);
 $login_url = $login_url[1];
+
+if(empty($login_url)){
+print <<<E
+<div class="alert alert-primary" role="alert">Ссылка входа не найдена.</div>
+</div>
+E;
+if(!$cfg['pj']){
+	print $skin->footer(array('extend'=> ''));
+} else {
+	print $ex_bot;
+}
+$db->close($res);
+exit;
+}
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $login_url);
@@ -99,7 +113,7 @@ $page = curl_exec($ch);
 curl_close($ch);
 
 $html = json_decode($page, true);
-$html = $html[3][0];
+$html = $html['data'][0];
 	
 	$titles = $artists = $extras = $tracks = array();
 	$result = array();
