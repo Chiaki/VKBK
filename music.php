@@ -136,7 +136,7 @@ $playlist = <<<E
 	}, [
 E;
 
-$r = $db->query("SELECT * FROM vk_music ORDER BY date_added DESC");
+$r = $db->query("SELECT * FROM vk_music WHERE saved = 1 ORDER BY date_added DESC");
 while($list = $db->return_row($r)){
 	// Rewrite if you plan to store content outside of web directory and will call it by Alias
 	if($cfg['vhost_alias'] == true && substr($list['path'],0,4) != 'http'){
