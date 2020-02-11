@@ -91,7 +91,7 @@ E;
     <footer class="footer">
       <div class="container pt-2">
 	<div class="row">
-        <div class="col-8"><p class="text-muted mb-2"><a href="https://github.com/Chiaki/VKBK" target="_blank"><i class="fab fa-vk"></i>BK {$cfg['version']}</a> <small>&copy; 2016 - 2019 Megumin</small></p></div>
+        <div class="col-8"><p class="text-muted mb-2"><a href="https://github.com/Chiaki/VKBK" target="_blank"><i class="fab fa-vk"></i>BK {$cfg['version']}</a> <small>&copy; 2016 - 2020 Megumin</small></p></div>
 		<div class="col-4" style="text-align:right;"><a href="about.php" data-pjax><small><i class="fa fa-code-branch fa-fw"></i> История версий</a></small></div>
 	</div>
       </div>
