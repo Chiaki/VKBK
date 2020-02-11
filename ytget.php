@@ -87,6 +87,13 @@ E;
   --no-part				- Do not use .part files - write directly into output file
   -o					- File would be saved as `YouTubeKey.ext` Example: DijY9NkGSak.mp4
   
+  -f					- format
+							Default YT: bestvideo[height<=720]+bestaudio - download max 720p or less
+							Default VK: url720/url480/url360/url240      - download max 720p or less
+							Example: bestvideo+bestaudio
+  --merge-output-format - If a merge is required (e.g. bestvideo+bestaudio), output to given container format. One of mkv, mp4, ogg, webm, flv.
+  --ffmpeg-location		- Path to ffmpeg binary
+  
   optional:
   -v					- debug
   
@@ -105,14 +112,14 @@ $local = array(
 
 // YouTube
 if($s == 'yt'){
-	$youtubeDLcmd = $cfg['yt_dl_path'].'youtube-dl.exe --no-mark-watched -4 --restrict-filenames -w --no-part --write-info-json -o "'.$cfg['video_path'].'data/'.$key.'.%(ext)s" https://youtu.be/'.$key;
+	$youtubeDLcmd = $cfg['yt_dl_path'].'youtube-dl.exe --no-mark-watched -4 --restrict-filenames -w -f "bestvideo[height<=720]+bestaudio" --merge-output-format mp4 --ffmpeg-location '.$cfg['ffmpeg'].' --no-part --write-info-json -o "'.$cfg['video_path'].'data/'.$key.'.%(ext)s" https://youtu.be/'.$key;
 }
 // VK.com
 if($s == 'vk'){
 	if($force_auth === true){
-		$youtubeDLcmd = $cfg['yt_dl_path'].'youtube-dl.exe -4 --restrict-filenames -w --no-part --write-info-json -u "'.$cfg['yt_dl_login'].'" -p "'.$cfg['yt_dl_passw'].'" -o "'.$cfg['video_path'].'data/vk-'.$vid['id'].'.%(ext)s" "'.$vid['player_uri'].'"';
+		$youtubeDLcmd = $cfg['yt_dl_path'].'youtube-dl.exe -4 --restrict-filenames -w -f url720/url480/url360/url240 --no-part --write-info-json -u "'.$cfg['yt_dl_login'].'" -p "'.$cfg['yt_dl_passw'].'" -o "'.$cfg['video_path'].'data/vk-'.$vid['id'].'-'.$vid['owner_id'].'.%(ext)s" "'.$vid['player_uri'].'"';
 	} else {
-		$youtubeDLcmd = $cfg['yt_dl_path'].'youtube-dl.exe -4 --restrict-filenames -w --no-part --write-info-json -o "'.$cfg['video_path'].'data/vk-'.$vid['id'].'.%(ext)s" "'.$vid['player_uri'].'"';
+		$youtubeDLcmd = $cfg['yt_dl_path'].'youtube-dl.exe -4 --restrict-filenames -w -f url720/url480/url360/url240 --no-part --write-info-json -o "'.$cfg['video_path'].'data/vk-'.$vid['id'].'-'.$vid['owner_id'].'.%(ext)s" "'.$vid['player_uri'].'"';
 	}
 }
 

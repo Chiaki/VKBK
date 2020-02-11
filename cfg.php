@@ -142,11 +142,13 @@ $cfg['sync_dialog_next_cd'] = 3;
 $cfg['sync_found_local']    = 1;
 
 /* Addon: youtube-dl
+   Require: ffmpeg
   This path you should edit if you have a youtube-dl
   installed and you want use it for making local video backup
   Example: C:\Users\%USER%\AppData\Local\Programs\Python\Python35\
 */
 $cfg['yt_dl_path'] = "";
+$cfg['ffmpeg'] = "";
 /* Addon: youtube-dl
    VK.com Authorization Details
    WARNING! YOUTUBE-DL AUTHORIZATION WORKS ONLY WITH LOGIN AND PASSWORD
