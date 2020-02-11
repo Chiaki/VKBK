@@ -5,7 +5,7 @@ class cu{
 	
 	var $ch;
 	
-    function cu(){
+    function __construct(){
 		return true;
     }
 

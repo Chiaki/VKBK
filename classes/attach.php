@@ -2,7 +2,7 @@
 
 class attach {
 	
-	function attach(){
+	function __construct(){
 		return true;
 	}
 	

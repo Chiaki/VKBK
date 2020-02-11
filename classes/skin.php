@@ -2,7 +2,7 @@
 
 class skin {
 	
-	function skin(){
+	function __construct(){
 		return true;
 	}
 	

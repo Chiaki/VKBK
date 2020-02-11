@@ -2,7 +2,7 @@
 
 class profiles {
 	
-	function profiles(){
+	function __construct(){
 		return true;
 	}
 	

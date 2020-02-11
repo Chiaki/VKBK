@@ -2,7 +2,7 @@
 
 class func {
 	
-	function func(){
+	function __construct(){
 		return true;
 	}
 	

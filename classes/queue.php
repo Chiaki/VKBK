@@ -2,7 +2,7 @@
 
 class queue {
 	
-	function queue(){
+	function __construct(){
 		return true;
 	}
 	
