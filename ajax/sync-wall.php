@@ -539,16 +539,16 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 	$q5 = $db->query("UPDATE vk_counters SET `wall` = (SELECT COUNT(*) FROM vk_wall WHERE `is_repost` = 0)");
 	
 	if($fast_sync == 1 && $fast_sync_stop == true){
-		// No unsynced posts left. This is the end...
+		// No unsynced items left. This is the end...
 		$output['response']['msg'][] = '<div><i class="fa fa-fw fa-check-circle text-success"></i> <strong>Великая китайская!</strong> Быстрая синхронизация сообщений завершена.</div>';
 	} else {
 	
 		// If we done with all posts
 		if(($offset+$count) >= $vk_post_total){
-			// No unsynced posts left. This is the end...
+			// No unsynced items left. This is the end...
 			$output['response']['msg'][] = '<div><i class="fa fa-fw fa-check-circle text-success"></i> <strong>Великая китайская!</strong> Синхронизация всех сообщений со стены завершена.</div>';
 		} else {
-			// Some posts on the wall is not synced yed
+			// Some items is not synced yed
 			// Calculate offset
 			$offset_new = $offset+$count;
 			
