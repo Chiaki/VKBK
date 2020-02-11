@@ -39,8 +39,8 @@ $type_icons = array(
 	'mwattach'	=> 'share'
 );
 
-$bar_total = $db->query_row("SELECT COUNT(*) as p FROM vk_photos WHERE album_id > -9000 AND `skipthis` = 0");
-$bar = $db->query_row("SELECT COUNT(*) as p FROM vk_photos WHERE album_id > -9000 AND `in_queue` = 1 AND `skipthis` = 0");
+$bar_total = $db->query_row("SELECT COUNT(*) as p FROM vk_photos WHERE album_id > ".SYSTEM_ALBUM." AND `skipthis` = 0");
+$bar = $db->query_row("SELECT COUNT(*) as p FROM vk_photos WHERE album_id > ".SYSTEM_ALBUM." AND `in_queue` = 1 AND `skipthis` = 0");
 $bar_queue['p'] = $bar['p'];
 $per = $bar_total['p']/100;
 if($bar_total['p'] > 0){
@@ -220,7 +220,7 @@ if(isset($_GET['id']) && isset($_GET['t'])){
 					$q = $db->query("UPDATE vk_photos SET `in_queue` = 0, `date_done` = ".time().", `path` = '".$cfg['photo_path'].$f."/".$n[0]."', `saved` = 1, `hash` = '".md5_file($cfg['photo_path'].$f."/".$n[0])."' WHERE `id` = ".$queue_id."");
 					
 					if($_GET['auto'] == '1'){
-						$nrow = $db->query_row("SELECT id FROM vk_photos WHERE album_id > -9000 AND `in_queue` = 1 ORDER BY date_added DESC");
+						$nrow = $db->query_row("SELECT id FROM vk_photos WHERE album_id > ".SYSTEM_ALBUM." AND `in_queue` = 1 ORDER BY date_added DESC");
 						if($nrow['id'] > 0){
 							print $skin->reload('info',"Страница будет обновлена через <span id=\"gcd\">".$cfg['sync_photo_next_cd']."</span> сек.","queue.php?t=p&id=".$nrow['id']."&auto=1",$cfg['sync_photo_next_cd']);
 						}

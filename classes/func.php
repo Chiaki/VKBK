@@ -340,6 +340,26 @@ class func {
 	}
 	
 	/*
+	    Function: get_video_image
+	    Returns video image
+	    from api 5.101
+	    In: data - array
+	    Out: url
+	*/
+	function get_video_image($data){
+	    $image = "";
+		$preh = 0;
+		$premax = 600;
+		foreach($data['image'] as $pk => $pv){
+			if(!isset($pv['with_padding'])){
+				if($pv['height'] >= $preh && $pv['height'] <= $premax){
+					$image = $pv['url']; $preh = $pv['height']; }
+			}
+		}
+		return $image;
+	}
+	
+	/*
 	  function get_largest_doc_image
 	  Returns a largest image of document preview
 	  In: data array

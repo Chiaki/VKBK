@@ -99,10 +99,12 @@ E;
 			'need_system' => '1'
 		));
 		
-		$counters_show['albums'] = $albums['response']['count'];
+		$counters_show['albums'] = $albums['response']['count']-1;
 		$counters_show['photos'] = 0;
 		foreach($albums['response']['items'] as $k => $v){
-			$counters_show['photos'] += $v['size'];
+			if($v['id'] > SYSTEM_ALBUM){
+				$counters_show['photos'] += $v['size'];
+			}
 		}
 
 		// GET AUDIO Count

@@ -2,6 +2,7 @@
 
 // Defines
 define('ROOT',dirname(__FILE__).'/');
+define('SYSTEM_ALBUM', '-9000');
 
 // Time Configuration
 date_default_timezone_set("Europe/Minsk");

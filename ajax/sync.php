@@ -10,6 +10,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 define('SLF',basename(__DIR__).'/'.basename(__FILE__));
+define('DEBUG_SYNC',false);
 
 // Output > JSON container
 $output = array(
@@ -96,7 +97,7 @@ if($do !== false){
 			$items_renamed = array('count'=>0,'list'=>'');
 			
 			// Get local items
-			$r = $db->query("SELECT id, name FROM vk_albums WHERE id > -9000");
+			$r = $db->query("SELECT id, name FROM vk_albums WHERE id > ".SYSTEM_ALBUM);
 			while($row = $db->return_row($r)){
 				$items_list['ids'][] = $row['id'];
 				$items_list['names'][$row['id']] = $row['name'];
@@ -119,7 +120,7 @@ if($do !== false){
 				foreach($items_vk as $k => $v){
 					
 					// Если альбом есть в базе
-					if(in_array($v['id'],$items_list['ids'])){
+					if(in_array($v['id'],$items_list['ids']) && $v['id'] > SYSTEM_ALBUM){
 						// Если альбом есть локально, то убираем его из локального списка
 						// Оставшиеся альбомы пойдут на удаление
 						$key = array_search($v['id'], $items_list['ids']);
@@ -133,14 +134,16 @@ if($do !== false){
 							$items_renamed['list'] .= '&laquo;'.$items_list['names'][$v['id']].'&raquo; > &laquo;'.$v['title'].'&raquo;<br/>';
 						}
 						
-					} else {
+					} else if($v['id'] > SYSTEM_ALBUM) {
 						// Если альбом не найден локально, добавляем его в список импорта
 						$items_create[] = $v;
 					}
 				}
 			} else if(!empty($items_vk[0]['id']) && empty($local_items)) {
 				foreach($items_vk as $k => $v){
-					$items_create[] = $v;
+					if($v['id'] > SYSTEM_ALBUM){
+						$items_create[] = $v;
+					}
 				}
 			}
 			
@@ -158,7 +161,7 @@ if($do !== false){
 			}
 			
 			// Update untouched items
-			$q = $db->query("UPDATE vk_albums SET updated = ".time()." WHERE id > -9000");
+			$q = $db->query("UPDATE vk_albums SET updated = ".time()." WHERE id > ".SYSTEM_ALBUM);
 			
 			// Import new albums
 			$output['response']['msg'][] = '<div>Новых альбомов: <b>'.sizeof($items_create).'</b></div>';
@@ -172,9 +175,9 @@ if($do !== false){
 			}
 			
 			// Update albums counter
-			$q = $db->query("UPDATE vk_counters SET `album` = (SELECT COUNT(*) FROM vk_albums WHERE id > -9000)");
+			$q = $db->query("UPDATE vk_counters SET `album` = (SELECT COUNT(*) FROM vk_albums WHERE id > ".SYSTEM_ALBUM.")");
 			
-			$q = $db->query("SELECT COUNT(id) as total FROM vk_albums WHERE id > -9000");
+			$q = $db->query("SELECT COUNT(id) as total FROM vk_albums WHERE id > ".SYSTEM_ALBUM);
 			$done_count = $db->return_row($q);
 			$output['response']['done'] = $done_count['total'];
 			
@@ -199,11 +202,14 @@ if($do !== false){
 				
 				$log = array();
 				
-				// Set all local items to album -9000
+				// Set all local items to album SYSTEM_ALBUM
 				// For fast sync move only 'system' albums
 				$fsync_q1 = $fast_sync == 1 ? " WHERE `album_id` < 1" : "";
-				$q = $db->query("UPDATE vk_photos SET `album_id` = -9000".$fsync_q1);
+				$moved = 0;
+				if(DEBUG_SYNC === false){
+				$q = $db->query("UPDATE vk_photos SET `album_id` = ".SYSTEM_ALBUM." ".$fsync_q1);
 				$moved = $db->affected_rows();
+				}
 				array_unshift($log,"Перемещаю фото в системный альбом - <b>".$moved."</b>\r\n");
 				$output['response']['msg'][] = '<div><i class="fas fa-fw fa-info-circle text-info"></i> Перемещаю фото в системный альбом - <b>'.$moved.'</b></div>';
 				unset($moved);
@@ -215,9 +221,9 @@ if($do !== false){
 				// Get first album ID
 				// For fast sync get only 'system' albums
 				$fsync_q2 = $fast_sync == 1 ? " AND `id` < 1" : "";
-				$row = $db->query_row("SELECT id FROM vk_albums WHERE id > -9000 ".$fsync_q2." LIMIT 1");
+				$row = $db->query_row("SELECT id FROM vk_albums WHERE id > ".SYSTEM_ALBUM." ".$fsync_q2." LIMIT 1");
 				// Get albums count
-				$alb_c = $db->query_row("SELECT COUNT(*) as count FROM vk_albums WHERE id > -9000".$fsync_q2);
+				$alb_c = $db->query_row("SELECT COUNT(*) as count FROM vk_albums WHERE id > ".SYSTEM_ALBUM." ".$fsync_q2);
 				$albums_total = $alb_c['count'];
 				// Reload page
 				$output['response']['msg'][] = '<div><i class="fas fa-fw fa-play-circle text-info"></i> <b>Сейчас вылетит птичка!</b> Начинаю синхронизацию фотографий.</div>';
@@ -372,7 +378,7 @@ if($do !== false){
 						// No unsynced items left and all abums was synced. This is the end...
 						// Let's make recount
 						$total = array('albums'=>0,'photos'=>0);
-						$q = $db->query("SELECT id FROM vk_albums WHERE id > -9000");
+						$q = $db->query("SELECT id FROM vk_albums WHERE id > ".SYSTEM_ALBUM);
 						while($row = $db->return_row($q)){
 							$total['albums']++;
 							$q2 = $db->query_row("SELECT COUNT(id) as photos FROM vk_photos WHERE `album_id` = ".$row['id']."");
@@ -502,23 +508,28 @@ if($do !== false){
 					}
 					
 					foreach($items_vk as $k => $v){
-						if(isset($items_create_ids[$v['adding_date']]) && $items_create_ids[$v['adding_date']] = $v['id']){
-							// Get biggest preview
-							if(isset($v['photo_800'])){ $v['uri'] = $v['photo_800'];}
-						elseif(isset($v['photo_640'])){ $v['uri'] = $v['photo_640'];}
-						elseif(isset($v['photo_320'])){ $v['uri'] = $v['photo_320'];}
-						elseif(isset($v['photo_130'])){ $v['uri'] = $v['photo_130'];}
+						if(isset($items_create_ids[$v['adding_date']]) && $items_create_ids[$v['adding_date']] = $v['id'] && !isset($v['content_restricted'])){
+
 						
 							$items_data[$v['id']] = array(
 								'owner_id' => (!is_numeric($v['owner_id']) ? 0 : $v['owner_id']),
 								'title' => ($v['title'] == '' ? '- Unknown '.$v['id'].' -' : $v['title']),
 								'desc' => ($v['description'] == '' ? '' : $v['description']),
 								'duration' => (!is_numeric($v['duration']) ? 0 : $v['duration']),
-								'preview_uri' => $v['uri'],
+								'preview_uri' => $func->get_video_image($v),
 								'date' => $v['adding_date'],
 								'player_uri' => $v['player'],
 								'access_key' => (!isset($v['access_key']) ? '' : $v['access_key'])
 							);
+						}
+						// Restricted content...
+						if(isset($v['content_restricted']) && $v['content_restricted'] == 1){
+							// Remove restricted item from creation list
+							unset($items_create[$k]);
+							
+							array_unshift($log,"Skip: <b>".($v['title'] == '' ? 'ID '.$v['id'] : $v['title'])."</b> -> ".$v['content_restricted_message']."\r\n");
+							$output['response']['msg'][] = '<div class="text-danger"><i class="fas fa-fw fa-exclamation-triangle"></i> Skip: <b>'.($v['title'] == '' ? 'ID '.$v['id'] : $v['title']).'</b> -> '.$v['content_restricted_message'].'</div>';
+							
 						}
 					} // foreach end
 				}
@@ -538,7 +549,11 @@ if($do !== false){
 					}
 					
 					foreach($data_sql as $k => $v){
+						if(DEBUG_SYNC === false){
 						$q = $db->query("INSERT INTO vk_videos (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v}");
+						} else {
+							echo "INSERT INTO vk_videos (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v}";
+						}
 					}
 					
 					array_unshift($log,"Новые видеозаписи добавлены в очередь: <b>".sizeof($items_create)."</b>\r\n");
@@ -562,7 +577,9 @@ if($do !== false){
 					$total['deleted'] = $q2['v'];
 					
 					// Update counters
+					if(DEBUG_SYNC === false){
 					$q5 = $db->query("UPDATE vk_counters SET `video` = (SELECT COUNT(*) FROM vk_videos WHERE `deleted` = 0)");
+					}
 					
 					array_unshift($log,"Синхронизация видеозаписей завершена.\r\nВидео - <b>".$total['video']."</b>, на удаление - <b>".$total['deleted']."</b>\r\n");
 					$output['response']['msg'][] = '<div><i class="fa fa-fw fa-check-circle text-success"></i> <strong>Снято!</strong> Синхронизация видеозаписей завершена.<br/>Видео - <b>'.$total['video'].'</b>, на удаление - <b>'.$total['deleted'].'</b></div>';
@@ -581,7 +598,9 @@ if($do !== false){
 				
 			} // end if part
 			// Save log to the DB
+			if(DEBUG_SYNC === false){
 			$q = $db->query("UPDATE vk_status SET `val` = CONCAT('".implode("\r\n",$log)."',`val`) WHERE `key` = 'log_video'");
+			}
 		} // DO Video end
 		
 		// Documents sync
