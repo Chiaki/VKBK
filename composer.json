@@ -1,0 +1,33 @@
+{
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chiaki",
+            "homepage": "https://github.com/Chiaki/VKBK"
+        }
+    ],
+    "repositories": [
+	{
+	    "type": "package",
+	    "package": {
+		"name": "biganfa/vk-auth",
+		"version": "v0.0.1",
+		"source": {
+		    "url": "git@github.com:biganfa/vk-auth.git",
+		    "type": "git",
+		    "reference": "2c38f416346b6dc90d13a251484fc6f4bcc51d06"
+		},
+		"autoload": {
+		    "psr-4": {
+			"VkAuth\\": "src/"
+		    }
+		}
+	    }
+	}
+    ],
+    "require": {
+	"twig/twig": "^3.0",
+        "biganfa/vk-auth": "^0.0.1",
+        "guzzlehttp/guzzle": "^6.5"
+    }
+}
