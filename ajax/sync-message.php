@@ -65,6 +65,10 @@ $output = array(
 	'error' => false
 );
 
+require_once ROOT ."/classes/vk-auth/wrapper.php";
+$vka = new \VKA\dev($cfg['yt_dl_login'],$cfg['yt_dl_passw'],$cfg['vk_api_version']);
+$vka->vka_init();
+
 // Include VK.API
 require_once(ROOT.'classes/VK/VK.php');
 
@@ -108,10 +112,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 		$output['response']['done'] = $count;
 		
 	// We logged in, get VK dialog list
-	$api = $vk->api('messages.getConversations', array(
-		'offset' => $offset,
-		'count' => $count
-	));
+	$api = $vka->vka_method('messages.getConversations',array('param_offset'=>$offset,'param_count'=>$count));
 	
 	$api_dialogs = array();
 	$vk_dialogs_total = 0;
@@ -282,11 +283,7 @@ E;
 				if($q['chat_id'] != 0){ $peer = 2000000000 + $q['chat_id']; }	// Group Chat ID
 				
 				// We logged in, get VK dialog list
-				$api = $vk->api('messages.getHistory', array(
-					'offset' => $offset,
-					'count' => $count,
-					'peer_id' => $peer
-				));
+				$api = $vka->vka_method('messages.getHistory',array('param_offset'=>$offset,'param_count'=>$count,'param_peer_id'=>$peer));
 	
 				$api_msg = array();
 				$vk_msg_total = 0;
@@ -447,7 +444,7 @@ E;
 					// Check do we need sync updated or new dialogs?
 					$q2 = $db->query_row("SELECT id,date FROM vk_dialogs WHERE `is_new` = 1 OR `is_upd` = 1 ORDER BY `id` DESC LIMIT 1");
 					if(!empty($q2['date'])){
-						$output['response']['msg'][] = '<div>Найден следующий диалог требующий синхронизации.</div>';
+						$output['response']['msg'][] = '<div>Найден диалог требующий синхронизации.</div>';
 						$output['response']['next_uri'] = '/ajax/sync-message.php?do=msg&offset=0&dlg_id='.$q2['id'].'&dlg_date='.$q2['date'];
 					} else {
 						// No unsynced messages left. This is the end...
