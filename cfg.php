@@ -3,6 +3,7 @@
 // Defines
 define('ROOT',dirname(__FILE__).'/');
 define('SYSTEM_ALBUM', '-9000');
+error_reporting(E_ALL & ~E_DEPRECATED);
 
 // Time Configuration
 date_default_timezone_set("Europe/Minsk");
@@ -14,6 +15,27 @@ foreach($needed_modules as $nm){
 }
 
 // VKBK Configuration
+class VKBK {
+	
+    /**
+     * VKBK twig config
+     * @var array
+     * template	- @var string >> template dir
+     * config	- @var array >> twig configuration
+     * cache	- @var bool
+     */
+	public $twi = array( 'template' => '', 'config' => array(), 'cache' => false );
+	
+	function __construct(){
+		$this->twi = array(
+			'template'	=> ROOT."template/",
+			'config'	=> array('autoescape' => false),
+			'cache'		=> false
+		);
+	}
+
+}
+
 $cfg = array();
 require_once('version.php');
 

@@ -6,6 +6,8 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 require_once('./cfg.php');
+$c = new vkbk();
+
 if(isset($_GET['_pjax']) || isset($_POST['_pjax'])){ $cfg['pj'] = true; }
 
 // Get DB
@@ -17,6 +19,9 @@ $res = $db->connect($cfg['host'],$cfg['user'],$cfg['pass'],$cfg['base']);
 require_once(ROOT.'classes/skin.php');
 $skin = new skin();
 
+// TWIG
+$skin->twig_init($c);
+
 // Get local counters for top menu
 $lc = $db->query_row("SELECT * FROM vk_counters");
 
@@ -25,71 +30,36 @@ if(!$cfg['pj']){
 	print $skin->navigation($lc);
 }
 
-print <<<E
-<div class="nav-scroller bg-white box-shadow mb-4" style="position:relative;">
-    <nav class="nav nav-underline">
-		<span class="nav-link active"><i class="fa fa-code-branch"></i> История версий</span>
-    </nav>
-</div>
-
-<div class="container">
-		  <div class="my-3 p-3 bg-white rounded box-shadow">
-			<p><strong>VKBK</strong> - это инструмент для создания и синхронизации локального бэкапа вашего лампового профиля ВК.</p>
-			<h6 class="border-bottom border-gray pb-2">Сторонние библиотеки:</h6>
-			<div class="row">
-			<div class="col-xs-6 col-sm-3 libs-row">
-			<a href="http://getbootstrap.com/">Bootstrap</a>
-				<span class="badge badge-light">4.1.3</span><br/>
-			<a href="https://github.com/vladkens/VK">PHP класс для VK.API</a>
-				<span class="badge badge-light">0.1.7</span><br/>
-			<a href="https://github.com/kombai/freewall">Freewall.js</a>
-				<span class="badge badge-light">1.05</span><br/>
-			<a href="https://github.com/pklauzinski/jscroll">jScroll.js</a>
-				<span class="badge badge-light">2.3.9a</span><br/>
-			<a href="https://github.com/fancyapps/fancyBox">fancybox.js</a>
-				<span class="badge badge-light">3.5.7</span>
-			</div>
-			<div class="col-xs-6 col-sm-3 libs-row">
-			<a href="https://fortawesome.github.io/Font-Awesome/">Font Awesome</a>
-				<span class="badge badge-light">5.8.2</span><br/>
-			<a href="https://github.com/minhur/bootstrap-toggle">Bootstrap Toggle</a>
-				<span class="badge badge-light">2.2.2</span><br/>
-			<a href="https://habr.com/ru/sandbox/57659/">hashnav.js</a>
-				<span class="badge badge-light">6 May 2016</span><br/>
-			<a href="https://github.com/noraesae/perfect-scrollbar">perfect-scrollbar.js</a>
-				<span class="badge badge-light">1.4.0</span><br/>
-			<a href="https://github.com/happyworm/jPlayer">jPlayer.js</a>
-				<span class="badge badge-light">2.9.2</span>
-			</div>
-			<div class="col-xs-6 col-sm-3 libs-row">
-			
-			<a href="https://github.com/snapappointments/bootstrap-select">Bootstrap Select</a>
-				<span class="badge badge-light">1.13.2</span><br/>
-			<a href="https://github.com/defunkt/jquery-pjax">pjax</a>
-				<span class="badge badge-light">2.0.1</span><br/>
-			<a href="https://github.com/customd/jquery-visible/">jQuery Visible</a>
-				<span class="badge badge-light">1.2.0</span><br/>
-			<a href="http://benalman.com/projects/jquery-throttle-debounce-plugin/">Debounce plugin</a>
-				<span class="badge badge-light">1.1</span><br/>
-			<a href="https://github.com/js-cookie/js-cookie">js-cookie</a>
-				<span class="badge badge-light">2.2.0</span>
-			</div>
-			<div class="col-xs-6 col-sm-3 libs-row">
-			<a href="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js">popper.js</a>
-				<span class="badge badge-light">1.15.0</span><br/>
-			<a href="https://github.com/miromannino/Justified-Gallery">Justified Gallery</a>
-				<span class="badge badge-light">3.7.0</span><br/>
-			<a href="https://github.com/sampotts/plyr">Plyr</a>
-				<span class="badge badge-light">3.5.4</span><br/>
-			</div>
-			</div>
-			
-		  </div>
-          <div class="col-sm-12 px-0 mb-5 pb-2">
-E;
+$libs = array(
+	array('name' => 'Bootstrap', 			'ver' => '4.1.3', 		'url' => 'https://getbootstrap.com/'),
+	array('name' => 'PHP класс для VK.API', 'ver' => '0.1.7', 		'url' => 'https://github.com/vladkens/VK'),
+	array('name' => 'vk-auth',              'ver' => '@2c38f41', 	'url' => 'https://github.com/ivastly/vk-auth'),
+	array('name' => 'Freewall.js', 			'ver' => '1.05', 		'url' => 'https://github.com/kombai/freewall'),
+	array('name' => 'jScroll.js', 			'ver' => '2.3.9a', 		'url' => 'https://github.com/pklauzinski/jscroll'),
+	array('name' => 'fancybox.js', 			'ver' => '3.5.7', 		'url' => 'https://github.com/fancyapps/fancyBox'),
+	array('name' => 'Font Awesome', 		'ver' => '5.8.2', 		'url' => 'https://fontawesome.com/'),
+	array('name' => 'Bootstrap Toggle', 	'ver' => '2.2.2', 		'url' => 'https://github.com/minhur/bootstrap-toggle'),
+	array('name' => 'hashnav.js', 			'ver' => '6 May 2016',	'url' => 'https://habr.com/ru/sandbox/57659/'),
+	array('name' => 'perfect-scrollbar.js',	'ver' => '1.4.0', 		'url' => 'https://github.com/noraesae/perfect-scrollbar'),
+	array('name' => 'jPlayer.js', 			'ver' => '2.9.2', 		'url' => 'https://github.com/happyworm/jPlayer'),
+	array('name' => 'Bootstrap Select', 	'ver' => '1.13.2', 		'url' => 'https://github.com/snapappointments/bootstrap-select'),
+	array('name' => 'pjax', 				'ver' => '2.0.1', 		'url' => 'https://github.com/defunkt/jquery-pjax'),
+	array('name' => 'jQuery Visible', 		'ver' => '1.2.0', 		'url' => 'https://github.com/customd/jquery-visible'),
+	array('name' => 'Debounce plugin', 		'ver' => '1.1', 		'url' => 'http://benalman.com/projects/jquery-throttle-debounce-plugin/'),
+	array('name' => 'js-cookie', 			'ver' => '2.2.0', 		'url' => 'https://github.com/js-cookie/js-cookie'),
+	array('name' => 'popper.js', 			'ver' => '1.15.0', 		'url' => 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js'),
+	array('name' => 'Justified Gallery', 	'ver' => '3.7.0', 		'url' => 'https://github.com/miromannino/Justified-Gallery'),
+	array('name' => 'Plyr', 				'ver' => '3.5.4', 		'url' => 'https://github.com/sampotts/plyr'),
+);
 
 $changelog = array(
 	'0.8.x' => array(
+		'0.8.12' => array(
+			array('i',"Проект потихоньку переползает на использование composer. (: В качестве шаблонизатора был вырбран twig."),
+			array('n',"В качестве альтернативного варианта доступа к API добавлен vk-auth."),
+			array('n',"Синхронизация диалогов снова работает."),
+			array('u',"Исправлено сохранение стикеров."),
+		),
 		'0.8.11' => array(
 			array('u',"Обновлена синхронизация видео под API 5.103."),
 			array('u',"Обновлена синхронизация фото альбомов под API 5.103."),
@@ -410,32 +380,11 @@ $changelog = array(
 	),
 );
 
-$r = 0;
-foreach($changelog as $k => $v){
-	print '<h4 '.($r > 0 ? 'data-toggle="collapse" data-target="#collapse'.$r.'" aria-expanded="false" aria-controls="collapse'.$r.'" style="cursor:pointer;">' : '>').'версия '.$k.'</h4>';
-	print '<div class="wall-box collapse'.($r==0 ? "show" : "").'" id="collapse'.$r.'">';
-	foreach($v as $d => $c){
-		print '<ul class="list-group list-unstyled"><div>'.$d.'</div>';
-		foreach($c as $t => $m){
-			if($m[0] == 'u'){   $l = 'warning">обновлено'; }
-			if($m[0] == 'b'){   $l = 'danger">баг'; }
-			if($m[0] == 'bf'){  $l = 'danger">багфикс'; }
-			if($m[0] == 'd'){   $l = 'danger">отключено'; }
-			if($m[0] == 'n'){   $l = 'primary">новое'; }
-			if($m[0] == 'fx'){  $l = 'success">функционал'; }
-			if($m[0] == 'i'){   $l = 'info">инфо'; }
-			print '<li><label><span class="badge badge-'.$l.'</span></label><p>'.$m[1].'</p></li>';
-		}
-		print '</ul>';
-	}
-	$r++;
-	print '</div>';
-}
-
-print <<<E
-          </div>
-</div>
-E;
+// twig
+$skin->twig_set('libs',$libs);
+$skin->twig_set('changelog',$changelog);
+echo $skin->twig_render('about');
+// twig end
 
 if(!$cfg['pj']){
 	print $skin->footer(array('extend'=>''));

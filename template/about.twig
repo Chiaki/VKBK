@@ -1,0 +1,63 @@
+<div class="nav-scroller bg-white box-shadow mb-4" style="position:relative;">
+    <nav class="nav nav-underline">
+	<span class="nav-link active"><i class="fa fa-code-branch"></i> История версий</span>
+    </nav>
+</div>
+
+<div class="container">
+    <div class="my-3 p-3 bg-white rounded box-shadow">
+	<p><strong>VKBK</strong> - это инструмент для создания и синхронизации локального бэкапа вашего лампового профиля ВК.</p>
+	<h6 class="border-bottom border-gray pb-2">Сторонние библиотеки:</h6>
+	<div class="row">
+
+{% set libiter = 0 %}
+{% for lib in libs %}
+    {% if libiter == 5 or libiter == 10 or libiter == 15 %}
+	</div>
+    {% endif %}
+    {% if libiter == 0 or libiter == 5 or libiter == 10 or libiter == 15 %}
+	<div class="col-xs-6 col-sm-3 libs-row">
+    {% endif %}
+    
+	<a href="{{lib.url}}">{{lib.name}}</a><span class="badge badge-light">{{lib.ver}}</span><br/>
+
+    {% set libiter = libiter+1 %}
+
+{% endfor %}
+	</div>
+    </div>
+</div>
+<div class="col-sm-12 px-0 mb-5 pb-2">
+    
+	  <!-- changelog -->
+{% set iter = 0 %}
+
+{% for ver, logs in changelog %}
+    <h4 {% if iter > 0 %} data-toggle="collapse" data-target="#collapse{{iter}}" aria-expanded="false" aria-controls="collapse{{iter}}" style="cursor:pointer;" {% endif %} >версия {{ver}}</h4>
+    <div class="wall-box collapse {% if iter == 0 %} show {% endif %}" id="collapse{{iter}}">
+
+    {% for date, msg in logs %}
+	<ul class="list-group list-unstyled"><div>{{date}}</div>
+	{% for typ, log in msg %}
+	
+	    {% if log.0 == 'u'  %}{% set l = 'warning">обновлено' %}	{% endif %}
+	    {% if log.0 == 'b'  %}{% set l = 'danger">баг' %} 		{% endif %}
+	    {% if log.0 == 'bf' %}{% set l = 'danger">багфикс' %}	{% endif %}
+	    {% if log.0 == 'd'  %}{% set l = 'danger">отключено' %}	{% endif %}
+	    {% if log.0 == 'n'  %}{% set l = 'primary">новое' %}	{% endif %}
+	    {% if log.0 == 'fx' %}{% set l = 'success">функционал' %}	{% endif %}
+	    {% if log.0 == 'i'  %}{% set l = 'info">инфо' %}		{% endif %}
+	
+	    <li><label><span class="badge badge-{{l|raw}}</span></label><p>{{log.1|raw}}</p></li>
+	{% endfor %}
+	</ul>
+    {% endfor %}
+
+    {% set iter = iter+1 %}
+</div>
+{% endfor %}
+
+	  <!-- changelog end -->
+	  
+	  </div>
+    </div>

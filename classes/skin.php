@@ -2,8 +2,33 @@
 
 class skin {
 	
+	private $twig;
+	private $twig_data = array();
+	
 	function __construct(){
 		return true;
+	}
+	
+	function twig_init($config){
+	    require ROOT . '/vendor/autoload.php';
+	    $loader = new \Twig\Loader\FilesystemLoader($config->twi['template']);
+	    // initialize Twig environment
+	    $twig_cfg = array();
+	    $twig_cfg['config'] = $config->twi['config'];
+	    $this->twig = new \Twig\Environment($loader, $twig_cfg);
+	}
+	
+	function twig_set($key, $val){
+	    $this->twig_data[$key] = $val;
+	}
+	
+	function twig_render($template){
+	    try {
+		return $this->twig->render($template.'.twig', $this->twig_data);
+	    } catch (Exception $e) {
+		trigger_error('Error: Could not load template ' .$template. '!');
+		exit();	
+	    }
 	}
 	
 	/*
