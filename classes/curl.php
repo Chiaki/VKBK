@@ -9,11 +9,11 @@ class cu{
 		return true;
     }
 
-	function curl_on(){
+	public function curl_on(){
 		$this->ch = curl_init("");
 	}
 
-	function curl_off(){
+	public function curl_off(){
 		if($this->ch){
 			curl_close($this->ch);
 		}
@@ -45,7 +45,7 @@ class cu{
 		// handle all encodings
 		curl_setopt($this->ch,CURLOPT_ENCODING,"");
 		// who am i
-		curl_setopt($this->ch,CURLOPT_USERAGENT,"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:44.0) Gecko/20100101 Firefox/44.0");
+		curl_setopt($this->ch,CURLOPT_USERAGENT,"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36");
 		// set referer on redirect
 		curl_setopt($this->ch,CURLOPT_AUTOREFERER,0);
 		// timeout on connect
@@ -65,13 +65,13 @@ class cu{
 		return $out;
 	}
 
-	function critError($msg){
+	public function critError($msg){
 		print $msg;
 		curl_off();
 		exit;
 	}
 
-	function file_save($opts,$data){
+	public function file_save($opts,$data){
 		if(!is_dir($opts['path'])){
 			if($this->winlin() === false){
 				mkdir($opts['path'],null,true);
@@ -101,7 +101,7 @@ class cu{
 		}
 	} // token_save end
 	
-	function clean_name($name){
+	public function clean_name($name){
 		// Check for `bad characters` in windows filenames
 		$bad = array_merge(
         array_map('chr', range(0,31)),
@@ -121,7 +121,7 @@ class cu{
 		return $name;
 	}
 	
-	function win_name($name){
+	public function win_name($name){
 		// Fow Windows encode UTF8 symbols to CP1251
 		// ref http://stackoverflow.com/questions/23058449/save-filename-with-unicode-chars
 		// ref http://stackoverflow.com/questions/9659600/glob-cant-find-file-names-with-multibyte-characters-on-windows
@@ -143,7 +143,7 @@ class cu{
 	   IN:
 	   OUT: false - windows, true - linux
 	*/
-	function winlin(){
+	public function winlin(){
 		$osu = strtoupper(substr(php_uname('s'), 0, 3));
 		if($osu === 'WIN'){
 			return false;
