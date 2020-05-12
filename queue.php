@@ -579,7 +579,7 @@ if(isset($_GET['id']) && isset($_GET['t'])){
 			// Get file name
 			preg_match_all("/\/([0-9]+)\/[^\.]+\.([^\.]+)$/",$q['uri'],$n);
 			
-			if(!isset($n[1][0]) || !isset($n[2][0])){
+			if(!isset($n[1][0]) || empty($n[1][0]) || !isset($n[2][0]) || empty($n[1][0])){
 				// Something wrong with url?... Who da fuck is did this?!
 				// Ofc VK can change API without any notice, ass'oles =_=
 				if(substr($q['uri'],15,14) == 'stickers_proxy'){
@@ -589,6 +589,10 @@ if(isset($_GET['id']) && isset($_GET['t'])){
 				// And again
 				if(strpos($q['uri'],"vk.com/sticker/") !== false){
 					preg_match_all("/[0-9]\-([0-9]+)\-512b?\-[0-9]/",$q['uri'],$n);
+					// AND AGAIN! >_<
+					if(empty($n[1][0])){
+						preg_match_all("/[0-9]\-([0-9]+)\-512/",$q['uri'],$n);
+					}
 					$n[2][0] = 'png';
 				}
 			}
