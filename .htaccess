@@ -1,4 +1,6 @@
 DirectoryIndex index.php
+# Prevent Directoy listing
+Options -Indexes
 
 RewriteBase /
 RewriteEngine Off
