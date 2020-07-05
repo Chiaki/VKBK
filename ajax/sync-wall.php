@@ -430,7 +430,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 								// Check do we have this attach already?
 								$at = $db->query_row("SELECT id FROM vk_videos WHERE id = ".$rpatk['video']['id']);
 								// Attach found, make a link
-								if(!empty($rpat['id']) && $rpatk['video']['owner_id'] == $vk_session['vk_user']){
+								if(!empty($at['id']) && $rpatk['video']['owner_id'] == $vk_session['vk_user']){
 									// Insert OR update
 									$f->wall_attach_update($rp['id'],$rpatk);
 								} else {

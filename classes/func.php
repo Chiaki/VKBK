@@ -52,6 +52,9 @@ class func {
 	    if($type == 'video'){ $text = $atk['video']['description']; }
 	    if($type == 'link'){  $text = $atk['link']['description']; }
 	    
+		// Get only 'url' from photo_uri if array
+		if(is_array($photo_uri) && isset($photo_uri['url'])){ $photo_uri = $photo_uri['url']; }
+		
 	    // Prepare empty data if another type of attach
 	    $atk[$type]['width']       = !isset($atk[$type]['width'])      ? 0  : $atk[$type]['width'];
 	    $atk[$type]['height']      = !isset($atk[$type]['height'])     ? 0  : $atk[$type]['height'];
@@ -256,13 +259,21 @@ class func {
 	*/
 	function get_largest_photo($data){
 	    
-		if(isset($data['sizes']) && is_array($data['sizes'])){
+		// There was Sizes, but also known as Image
+		$size_or_img = false;
+		    if(isset($data['sizes'])){ $size_or_img = 'sizes'; }
+		elseif(isset($data['image'])){ $size_or_img = 'image'; }
+		elseif(isset($data['first_frame'])){ $size_or_img = 'first_frame'; }
+		
+		if($size_or_img !== false && is_array($data[$size_or_img])){
 			
 			// New style sizes
 			$photo_uri = array();
 			$opts = array();
-			foreach($data['sizes'] as $dk => $dv){
-				$opts[$dv['type']] = $dv;
+			foreach($data[$size_or_img] as $dk => $dv){
+				if(isset($dv['type'])){
+					$opts[$dv['type']] = $dv;
+				}
 			}
 			if(isset($opts['w'])){ $photo_uri = $opts['w']; }
 		elseif(isset($opts['z'])){ $photo_uri = $opts['z']; }
@@ -277,7 +288,7 @@ class func {
 				$max_w = 0;
 				$max_h = 0;
 				$horv = 'w'; // Default ratio for 'W'idth
-				foreach($data['sizes'] as $dk => $dv){
+				foreach($data[$size_or_img] as $dk => $dv){
 					if(isset($dv['width']) && isset($dv['height']) && isset($dv['url'])){
 						if($dv['width'] > $dv['height']){ $horv = 'w'; } else { $horv = 'h'; }
 						if($horv == 'w' && $dv['width'] >= $max_w){
