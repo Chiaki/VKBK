@@ -97,6 +97,9 @@ class func {
 	    if($type == 'photo'){ $text = $atk['photo']['text']; }
 	    if($type == 'video'){ $text = $atk['video']['description']; }
 	    if($type == 'link'){  $text = $atk['link']['description']; }
+		
+		// Get only 'url' from photo_uri if array
+		if(is_array($photo_uri) && isset($photo_uri['url'])){ $photo_uri = $photo_uri['url']; }
 	    
 	    // Prepare empty data if another type of attach
 	    $atk[$type]['width']       = !isset($atk[$type]['width'])      ? 0  : $atk[$type]['width'];
