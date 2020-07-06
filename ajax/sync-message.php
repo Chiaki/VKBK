@@ -432,11 +432,20 @@ E;
 					}
 				}
 				
+				if(SYNC_MSG_DEBUG == true){
+					echo '<p>Offset: '.$offset.' | Count: '.$count.' | Total: '.$vk_msg_total.'</p>';
+				}
+				
 				if($offset > 0){ $ot = $offset; } else { $ot = 1; }
 				
 				$output['response']['msg'][] = '<div>Получаем сообщения <b> '.$ot.' - '.$to.' / '.$vk_msg_total.'</b>'.($quick == true ? ' (быстрая синхронизация) ' : '').'</div>';
 				
+				if(SYNC_MSG_DEBUG == true){
+					echo '<p>Quick: '.$quick.' | Quick sync stop: '.$quick_sync_stop.'</p>';
+				}
+				
 				if($quick == true && $quick_sync_stop == true){
+					if(SYNC_MSG_DEBUG == true){ echo 'Quick sync done. Task stopped.'; }
 					if(SYNC_MSG_DEBUG == false){
 						// Update current dialog status to done
 						$q1 = $db->query("UPDATE vk_dialogs SET `is_new` = 0, `is_upd` = 0 WHERE `id` = ".$dlg_id." AND `date` = ".$dlg_date);
@@ -452,7 +461,7 @@ E;
 						$output['response']['msg'][] = '<div class="alert alert-success mb-0" role="alert"><strong>Все ходы записаны!</strong> Быстрая синхронизация сообщений завершена.</div>';
 					}
 				} else {
-	
+					if(SYNC_MSG_DEBUG == true){ echo 'Task continue. OffsetX: '.($offset+$count).' > '.$vk_msg_total; }
 					// If we done with all messages
 					if(($offset+$count) >= $vk_msg_total){
 						if(SYNC_MSG_DEBUG == false){
