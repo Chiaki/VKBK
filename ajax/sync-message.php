@@ -276,6 +276,7 @@ E;
 			if(!empty($q['date']) && !empty($q['in_read'])){
 				
 				$quick = ($q['is_new'] == 1) ? false : true;
+				$quick_sync_stop = false;
 				$count = 200; // Maximum: 200
 				$output['response']['done'] = $count;
 				
