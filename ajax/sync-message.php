@@ -287,9 +287,9 @@ E;
 	
 				$api_msg = array();
 				$vk_msg_total = 0;
-	
+				
 				if($api['response'] != ''){
-		
+				
 					$don = true;
 					$api_msg = $api['response']['items'];
 					$vk_msg_total = $api['response']['count'];
@@ -304,12 +304,12 @@ E;
 							//$output['response']['total'] = $api['response']['in_read'] - $q['in_read'];
 						//}
 					}
-		
+				
 				}
-	
+				
 				
 				if(!empty($api_msg)){
-		
+				
 					foreach($api_msg as $k => $v){
 						$attach = 0;
 						$forward = 0;
