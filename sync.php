@@ -89,6 +89,12 @@ print <<<E
 <button data-uri="{$sync_wall}do=wall&offset=0" type="button" class="btn btn-sm btn-block btn-outline-success"><i class="far fa-fw fa-newspaper"></i> Стена (<i class="fa fa-fw fa-hourglass"></i> всё)</button>
 					</div>
 				</div>
+				<div class="row mt-2">
+					<div class="col-sm-12">
+<a href="/sync-messages.php" class="btn btn-sm btn-block btn-outline-success">
+<i class="fa fa-fw fa-comments"></i> Сообщения (диалоги)</a>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
