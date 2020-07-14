@@ -266,7 +266,7 @@ $(document).ready(function() {
 	urlCommands.bind('quality', function(id) { quality = id; jQuery("#f-quality").selectpicker('val',id); });
 	urlCommands.bind('length', function(id) { length = id; jQuery("#f-length").selectpicker('val',id); });
 	urlCommands.bind('date', function(id) { date = id; jQuery("#f-date").selectpicker('val',id); });
-	urlCommands.bind('qsearch', function(id) { qsearch = id; jQuery("#qsearch").val(id); });
+	urlCommands.bind('qsearch', function(id) { qsearch = id; jQuery("#qsearch").val(urldecode(id)); });
 	
 	// Not default options -> reload
 	if(type != 'all' || service != 'any' || quality != 0 || length != 0 || date != 'new' || qsearch != ''){
@@ -344,6 +344,17 @@ $(document).ready(function() {
 	
 	function video_vars(page){
 		return "?page="+page+"&type="+type+"&service="+service+"&quality="+quality+"&length="+length+"&date="+date+"&qsearch="+qsearch;
+	}
+	
+	/*
+		Decode urlencoded value
+	*/
+	function urldecode(str) {
+		//return decodeURIComponent((str+'').replace(/\+/g, '%20'));
+			return decodeURIComponent((str + '').replace(/%(?![\da-f]{2})/gi, function () {
+			// PHP tolerates poorly formed escape sequences
+				return '%25'
+			}).replace(/\+/g, '%20'))
 	}
 	
 	if(notload == false){
