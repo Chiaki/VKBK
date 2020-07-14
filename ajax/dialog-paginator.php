@@ -299,6 +299,8 @@ E;
 				$fwd_output_attach .= $atch->dlg_attach_doc($fwdav);
 				// Remote Video Attach
 				$fwd_output_attach .= $atch->dlg_attach_video($fwdav);
+				// Type - Wall
+				$fwd_output_attach .= $atch->dlg_attach_wall($fwdav,$vk_session);
 			}
 		}
 		$fwd_output_attach .= '</div><div style="clear:both;"></div>';
