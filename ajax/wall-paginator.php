@@ -31,12 +31,30 @@ $vk_session = $row = $db->return_row($q);
 require_once(ROOT.'classes/func.php');
 $f = new func();
 
+// Filter Options
+$options = '';
+$date_a = (isset($_GET['date_a'])) ? intval($_GET['date_a']) : 0;
+$date_b = (isset($_GET['date_b'])) ? intval($_GET['date_b']) : 0;
+$qsearch = (isset($_GET['qsearch'])) ? $db->real_escape($_GET['qsearch']) : '';
+
+// From date X
+if($date_a > 0 && $date_b == 0){ $options .= " AND `date` >= ".$date_a; }
+// Before date X
+if($date_b > 0 && $date_a == 0){ $options .= " AND `date` <= ".$date_b; }
+// Between
+if($date_a > 0 && $date_b > 0){ $options .= " AND (`date` BETWEEN '".$date_a."' AND '".$date_b."')"; }
+
+if($qsearch != ''){
+	$options .= " AND `text` LIKE '%".$qsearch."%'";
+}
+
+
 $offset_page = ($page > 0) ? $cfg['perpage_wall']*$page : 0;
 // Get 1 more post to see do we have something on the next page
 $perpage = $cfg['perpage_wall']+1;
 $next = 0;
 
-$r = $db->query("SELECT * FROM vk_wall WHERE is_repost = 0 ORDER BY date DESC LIMIT {$offset_page},{$perpage}");
+$r = $db->query("SELECT * FROM vk_wall WHERE is_repost = 0 {$options} ORDER BY date DESC LIMIT {$offset_page},{$perpage}");
 while($row = $db->return_row($r)){
 	if($next < $cfg['perpage_wall']){
 		$repost_body = '';
@@ -65,7 +83,7 @@ while($row = $db->return_row($r)){
 
 if($next > $cfg['perpage_wall']){
 	$page++;
-	print '<div class="paginator-next" style="display:none;"><span class="paginator-val">'.$page.'</span><a href="ajax/wall-paginator.php?page='.$page.'">следующая страница</a></div>';
+	print '<div class="paginator-next" style="display:none;"><span class="paginator-val">'.$page.'</span><a href="ajax/wall-paginator.php?page='.$page.'&date_a='.$date_a.'&date_b='.$date_b.'&qsearch='.$qsearch.'">следующая страница</a></div>';
 }
 
 $db->close($res);

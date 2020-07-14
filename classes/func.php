@@ -511,7 +511,7 @@ class func {
 	    $row['date'] = $this->wall_date_format($row['date']);
 	    if($row['text'] != ''){ $row['text'] = '<div class="mb-2">'.nl2br($this->wall_post_parse($row['text'])).'</div>'; }
 	    $tmp_box = '';
-	    $tmp_class = 'col-sm-12 col-md-6 m-auto wall-box';
+	    $tmp_class = 'col-sm-12 col-md-10 m-auto wall-box';
 $tmp_postid = <<<E
     <a class="post-id wallious fancybox" data-fancybox data-type="iframe" data-title-id="#{$row['id']}" href="ajax/wall-post.php?p={$row['id']}" onClick="javascript:urlCommands.urlPush({post:{$row['id']}});">#{$row['id']}</a>
 E;
