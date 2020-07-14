@@ -96,6 +96,7 @@ E;
     <link rel="stylesheet" href="jplayer/skin/vkbk/css/jplayer.vkbk.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="css/justifiedGallery.min.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="css/plyr.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="css/datepicker.min.css" type="text/css" media="screen" />
     <!-- Custom styles for this template -->
     <link href="css/custom.css" rel="stylesheet">
     <link href="css/fontawesome-all.min.css" rel="stylesheet">
@@ -166,6 +167,7 @@ E;
     <script type="text/javascript" src="js/hashnav.js"></script>
     <script type="text/javascript" src="js/js.cookie.min.js"></script>
     <script type="text/javascript" src="js/jquery.justifiedGallery.min.js"></script>
+	<script type="text/javascript" src="js/datepicker.min.js"></script>
     <script type="text/javascript" src="js/vkbk.js"></script>
 E;
 	}

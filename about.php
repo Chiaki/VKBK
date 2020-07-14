@@ -50,6 +50,7 @@ $libs = array(
 	array('name' => 'popper.js', 			'ver' => '1.15.0', 		'url' => 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js'),
 	array('name' => 'Justified Gallery', 	'ver' => '3.7.0', 		'url' => 'https://github.com/miromannino/Justified-Gallery'),
 	array('name' => 'Plyr', 				'ver' => '3.5.4', 		'url' => 'https://github.com/sampotts/plyr'),
+	array('name' => 'Air Datepicker', 		'ver' => '@3e73721', 	'url' => 'https://github.com/t1m0n/air-datepicker'),
 );
 
 $changelog = array(
