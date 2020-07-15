@@ -46,22 +46,22 @@ E;
 require_once('data_db.php');
 
 foreach($db as $dbTable => $dbStructure){
-    echo '<a name="'.$db_prefix.$dbTable.'"><h6>'.$db_prefix.$dbTable.'</h6>';
-    echo '<div class="table-responsive">
-	<table class="table table-striped table-sm">
+    echo '<a name="'.$db_prefix.$dbTable.'"><h6 data-toggle="collapse" data-target="#'.$db_prefix.$dbTable.'" aria-expanded="false" aria-controls="'.$db_prefix.$dbTable.'" class="collapsed" style="cursor:pointer;">'.$db_prefix.$dbTable.'</h6><p>'.$dbStructure['desc'].'</p>';
+    echo '<div class="collapse" id="'.$db_prefix.$dbTable.'"><div class="table-responsive">
+	<table class="table table-striped">
 	    <tr>
 		<th>Поле</th>
 		<th>Тип</th>
 		<th>Описание</th>
 	    </tr>';
-    foreach($dbStructure as $dbField => $dbAttr){
+    foreach($dbStructure['cols'] as $dbField => $dbAttr){
 	echo '<tr>';
 	    echo '<td>'.$dbField.'</td>';
 	    echo '<td>'.$db_attr[$dbAttr['type']].'</td>';
 	    echo '<td>'.$dbAttr['desc'].'</td>';
 	echo '</tr>';
     }
-    echo '</table>
+    echo '</table></div>
 	</div><hr/>';
 }
 

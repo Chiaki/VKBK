@@ -33,7 +33,7 @@ echo <<<E
     <div class="d-flex align-items-center p-3 my-3 text-white1 bg-header rounded box-shadow">
 	<div class="lh-100">
           <h6 class="mb-0 text-white lh-100">VKBK Документация</h6>
-          <small>Версия 0.8.5</small>
+          <small>Версия 0.8.13</small>
         </div>
     </div>
     
