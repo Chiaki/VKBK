@@ -113,6 +113,15 @@ $page = curl_exec($ch);
 curl_close($ch);
 
 $html = json_decode($page, true);
+
+if(!isset($html['data'][0])){
+print <<<E
+<div class="alert alert-secondary" role="alert">Не удалось получить данные. Проверьте корректность логина и пароля.</div>
+</div>
+E;
+	exit;
+}
+
 $html = $html['data'][0];
 	
 	$titles = $artists = $extras = $tracks = array();
