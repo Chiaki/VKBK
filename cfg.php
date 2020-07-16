@@ -170,8 +170,9 @@ $cfg['sync_found_local']    = 1;
   installed and you want use it for making local video backup
   Example: C:\Users\%USER%\AppData\Local\Programs\Python\Python35\
 */
-$cfg['yt_dl_path'] = "";
-$cfg['ffmpeg'] = "";
+$cfg['yt_dl_path'] = '';
+$cfg['ffmpeg'] = '';
+
 /* Addon: youtube-dl
    VK.com Authorization Details
    WARNING! YOUTUBE-DL AUTHORIZATION WORKS ONLY WITH LOGIN AND PASSWORD
@@ -179,6 +180,6 @@ $cfg['ffmpeg'] = "";
    yt_dl_login - your VK.com email
    yt_dl_passw - your VK.com password
 */
-$cfg['yt_dl_login'] = "";
-$cfg['yt_dl_passw'] = "";
+$cfg['yt_dl_login'] = '';
+$cfg['yt_dl_passw'] = '';
 ?>
