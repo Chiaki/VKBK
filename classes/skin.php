@@ -49,7 +49,7 @@ class skin {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>VKBK</title>
-    <base href="/" />
+    <base href="./" />
     <link href="favicon.png" rel="shortcut icon">
     {$this->header_links()}
     {$s['extend']}
@@ -73,7 +73,7 @@ E;
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>VKBK</title>
-    <base href="/" />
+    <base href="../" />
     <link href="favicon.png" rel="shortcut icon">
     {$this->header_links()}
   </head>
