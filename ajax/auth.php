@@ -27,7 +27,7 @@ if(isset($_GET['do']) && in_array($_GET['do'],$opions)){
 }
 
 print <<<E
-<div class="text-center"><span class="badge badge-secondary">{$output}</span></div>
+<div class="col text-center"><div class="alert alert-light">{$output}</div></div>
 E;
 
 $db->close($res);
