@@ -6,6 +6,37 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 require_once('./cfg.php');
+
+// Installation check
+if(empty($cfg['user']) || empty($cfg['vk_id'])){
+print <<<E
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Добро пожаловать - VKBK</title>
+	<base href="./" />
+	<link rel="shortcut icon" href="favicon.png">
+	<link href="css/fontawesome-all.min.css" rel="stylesheet">
+	<style type="text/css">
+		.welcome { margin: 20vh auto 5vh; padding: 2rem; max-width: 31.25rem; text-align: center; color: #fff; background-color: #597da3; border-radius: 0.25rem; box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05) }
+		.welcome a { color: #fff }
+		.git { margin: 0vh auto; text-align: center }
+		.git a { color: #597da3 }
+	</style>
+</head>
+<body>
+	<div class="welcome"><h1>VKBK {$cfg['version']}</h1><h3>Инструмент для создания и синхронизации локального бэкапа вашего профиля ВКонтакте</h3><p><a href="install/">Перейти к установке</a></p></div>
+	<div class="git"><a href="https://github.com/Chiaki/VKBK" target="_blank" rel="noopener"><i class="fab fa-github fa-fw"></i> GitHub</div>
+</body>
+</html>
+E;
+	exit;
+}
+// Installation check end
+
 if(isset($_GET['_pjax']) || isset($_POST['_pjax'])){ $cfg['pj'] = true; }
 
 // Get DB
