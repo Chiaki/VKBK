@@ -77,16 +77,18 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 		
 		$u = $user['response'][0];
 		
-		print "<center>";
+		print '<div class="col text-center" style="display:flex;justify-content:space-between;flex-wrap:wrap">';
 		if($u['has_photo']){
 print <<<E
-<img class="img-thumbnail" alt="200x200" style="width: 200px;" src="{$u['photo_200_orig']}" data-holder-rendered="true">
+<div class="w-100"><img class="img-thumbnail" alt="200x200" style="width: 200px;" src="{$u['photo_200_orig']}" data-holder-rendered="true"></div>
 E;
 		}
 print <<<E
-			<h6><a href="https://vk.com/id{$u['id']}" target="_blank">{$u['nickname']}</a> <a href="ajax/auth.php?do=logout" data-pjauth><i class="fa fa-sign-out-alt"></i></a></h6>
-			{$u['first_name']} {$u['last_name']}
-		    </center>
+			
+			<div><a class="btn btn-link btn-sm" href="https://vk.com/id{$u['id']}" target="_blank" rel="noopener noreferrer">{$u['nickname']} <small><i class="fa fa-fw fa-external-link-alt"></i></small></a></div>
+			<div><a class="btn btn-outline-secondary btn-sm" href="ajax/auth.php?do=logout" data-pjauth><i class="fa fa-sign-out-alt"></i></a></div>
+			<div class="w-100">{$u['first_name']} {$u['last_name']}</div>
+			</div>
 		  </li>
 		  <li class="col-sm-12">
 		    <ul class="nav my-3 p-3 bg-white rounded box-shadow">
@@ -185,14 +187,15 @@ E;
 print <<<E
 <div class="text-center">
 	<i class="fab fa-vk" style="font-size:3em;"></i>
-	<a href="{$authorize_url}" target="_blank" class="btn btn-info" role="button">Открыть окно авторизации</a>
+	<p>1. Окно авторизации
+	<a href="{$authorize_url}" target="_blank" class="btn btn-primary w-75" role="button">Открыть <i class="fa fa-fw fa-external-link-alt"></i></a></p>
 </div>
-<div class="text-center mt-3 p-3">
-		<form action="" method="GET">
-			скопируйте code из окна авторизации
-			<input class="m-2" type="text" name="code" value="" />
-			<input class="btn btn-success" type="submit" value="авторизироваться" />
-		</form>
+<div class="text-center mt-2 p-2">
+	<form action="" method="GET">
+		<p>2. Скопируйте <b>x</b> из URL<br/><small>api.vk.com/blank.html#code=<b>x</b></small><br>в поле ниже:
+		<input class="form-control w-75 mb-2 mx-auto" type="text" name="code" value="" />
+		<button class="btn btn-success w-75 " type="submit">Войти <i class="fa fa-fw fa-sign-in-alt"></i></button></p>
+	</form>
 </div>
 E;
 		} else {
@@ -203,10 +206,10 @@ E;
 				$q = $db->query("REPLACE INTO vk_session (`vk_id`,`vk_token`, `vk_expire`, `vk_user`) VALUES (1,'{$access_token['access_token']}','{$access_token['expires_in']}','{$access_token['user_id']}')");
 			}
 		
-			print '<h3><span class="badge badge-success" style="white-space:inherit;display:block;">Авторизация пройдена</span></h3>';
+			print '<div class="alert alert-success text-center"><h6><span style="white-space:inherit">Авторизация пройдена</span></h6></div>';
 		}
 	} catch (Exception $error) {
-		echo '<h3><span class="badge badge-danger" style="white-space:inherit;display:block;">Ошибка: '.$error->getMessage().'</span></h3>';
+		echo '<div class="alert alert-danger text-center"><h6><span style="white-space:inherit">Ошибка: '.$error->getMessage().'</span></h6></div>';
 	}
 } // end if token else
 
