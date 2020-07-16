@@ -9,6 +9,11 @@ class db {
 	}
 	
 	function connect($host,$user,$pass,$base){
+		if(empty($user)){
+			echo 'Пользователь БД не указан. Проверьте настройки в <b>cfg.php</b>';
+			exit;
+		}
+		
 		$db = mysqli_connect($host,$user,$pass);
 		if(!$db){
 			die("Ошибка подключения к БД: ".mysqli_error());
