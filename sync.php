@@ -32,6 +32,7 @@ print $skin->navigation($lc);
 
 $sync_apvd = '/ajax/sync.php?';
 $sync_wall = '/ajax/sync-wall.php?';
+$sync_comm = '/ajax/sync-comm.php?';
 
 print <<<E
 <div class="nav-scroller bg-white box-shadow mb-4" style="position:relative;">
@@ -60,7 +61,7 @@ print <<<E
 					<div class="col-sm-12 text-center">
 						<div class="text-center"><h6 class="pb-2 mb-0">Синхронизировать</h6></div>
 <button data-uri="{$sync_apvd}do=albums" type="button" class="btn btn-sm btn-block btn-outline-success">
-<i class="fa fa-fw fa-folder-open"></i> Альбомы</button>
+<i class="far fa-fw fa-folder-open"></i> Альбомы</button>
 					</div>
 				</div>
 				<div class="row mt-2">
@@ -78,7 +79,7 @@ print <<<E
 <button data-uri="{$sync_apvd}do=video" type="button" class="btn btn-sm btn-block btn-outline-success">
 <i class="fa fa-fw fa-film"></i> Видеозаписи</button>
 <button data-uri="{$sync_apvd}do=docs" type="button" class="btn btn-sm btn-block btn-outline-success">
-<i class="fa fa-fw fa-file"></i> Документы</button>
+<i class="far fa-fw fa-file"></i> Документы</button>
 					</div>
 				</div>
 				<div class="row mt-2">
@@ -92,7 +93,12 @@ print <<<E
 				<div class="row mt-2">
 					<div class="col-sm-12">
 <a href="/sync-messages.php" class="btn btn-sm btn-block btn-outline-success">
-<i class="fa fa-fw fa-comments"></i> Сообщения (диалоги)</a>
+<i class="far fa-fw fa-comments"></i> Сообщения (диалоги)</a>
+					</div>
+				</div>
+				<div class="row mt-2">
+					<div class="col-sm-12">
+<button data-uri="{$sync_comm}do=check&offset=0" type="button" class="btn btn-sm btn-block btn-outline-success"><i class="far fa-fw fa-comment-alt"></i> Комментарии</button>
 					</div>
 				</div>
 			</div>

@@ -36,7 +36,8 @@ $type_icons = array(
 	'docs'		=> 'file',
 	'attach'	=> 'paperclip',
 	'mattach'	=> 'paperclip',
-	'mwattach'	=> 'share'
+	'mwattach'	=> 'share',
+	'cattach'	=> 'comment-alt'
 );
 
 $bar_total = $db->query_row("SELECT COUNT(*) as p FROM vk_photos WHERE album_id > ".SYSTEM_ALBUM." AND `skipthis` = 0");
@@ -114,8 +115,23 @@ if($bar_queue['mwsat']['total'] > 0){
 	}
 }
 
+$bar_total = $db->query_row("SELECT COUNT(*) as cattach FROM vk_wall_comments_attach WHERE `uri` != '' AND `is_local` = 0 AND `skipthis` = 0");
+$bar = $db->query_row("SELECT COUNT(*) as cattach FROM vk_wall_comments_attach WHERE `path` = '' AND `uri` != '' AND `is_local` = 0 AND `skipthis` = 0");
+$bar_queue['cattach']['total'] = $bar['cattach'];
+$per = $bar_total['cattach']/100;
+if($bar_total['cattach'] > 0){
+$done['comatt'] = round(($bar_total['cattach'] - $bar_queue['cattach']['total']) / $per, 2);
+$done['comat'] = ceil($done['comatt']);
+} else { $done['cattach'] = $done['comatt'] = 0; }
+if($bar_queue['cattach']['total'] > 0){
+	$comatq = $db->query("SELECT type, COUNT(*) as c FROM vk_wall_comments_attach WHERE `path` = '' AND `uri` != '' AND `is_local` = 0 AND `skipthis` = 0 GROUP BY `type`");
+	while($row = $db->return_row($comatq)){
+		$bar_queue['cattach'][$row['type']] = $row['c'];
+	}
+}
 
-$all_queue = $bar_queue['p'] + $bar_queue['m'] + $bar_queue['v'] + $bar_queue['at'] + $bar_queue['dc'] + $bar_queue['msat']['total'] + $bar_queue['mwsat']['total'];
+
+$all_queue = $bar_queue['p'] + $bar_queue['m'] + $bar_queue['v'] + $bar_queue['at'] + $bar_queue['dc'] + $bar_queue['msat']['total'] + $bar_queue['mwsat']['total'] + $bar_queue['cattach']['total'];
 $no_queue = true;
 
 // Profiles & Groups
@@ -162,6 +178,9 @@ $bar[5] = array('fa' => $type_icons['mattach'],'name' => 'Диалоги','perx'
 
 // MessagesWallAttachments
 $bar[6] = array('fa' => $type_icons['mwattach'],'name' => 'Репосты','perx' => $done['mwsatt'],'per' => $done['mwsat'],'bar' => 'secondary');
+
+// WallCommentsAttachments
+$bar[7] = array('fa' => $type_icons['cattach'],'name' => 'Коммент.','perx' => $done['comatt'],'per' => $done['comat'],'bar' => 'secondary');
 
 foreach($bar as $bark => $barv){
 	print $skin->queue_progress_bar($barv);
@@ -689,6 +708,102 @@ if(isset($_GET['id']) && isset($_GET['t'])){
 		$qe->save_as_double_attach($queue_id,$queue_oid,'mwatdc',$_GET['auto']);
 	} // End of T = MWATDC
 	
+	// Wall - Comments - Attach - Photo
+	if($queue_id > 0 && $_GET['t']=='catph' && $queue_oid != 0){
+		$don = true;
+		$qe->save_as_attach($queue_id,$queue_oid,'catph',$_GET['auto']);
+	} // End of T = CATPH
+	
+	// Wall - Comments - Attach - Video
+	if($queue_id > 0 && $_GET['t']=='catvi' && $queue_oid != 0){
+		$don = true;
+		$qe->save_as_attach($queue_id,$queue_oid,'catvi',$_GET['auto']);
+	} // End of T = CATVI
+	
+	// Wall - Comments - Attach - Link
+	if($queue_id > 0 && $_GET['t']=='catli' && $queue_oid != 0){
+		$don = true;
+		$qe->save_as_attach($queue_id,$queue_oid,'catli',$_GET['auto']);
+	} // End of T = CATLI
+	
+	// Wall - Comments - Attach - Document
+	if($queue_id > 0 && $_GET['t']=='catdc'){
+		$don = true;
+		$qe->save_as_double_attach($queue_id,$queue_oid,'catdc',$_GET['auto']);		
+	} // End of T = CATDC
+	
+	// Comment - Attach - Stickers
+	if($queue_id > 0 && $_GET['t']=='catst'){
+		$don = true;
+		// Get sticker info
+		$q = $db->query_row("SELECT * FROM vk_wall_comments_attach WHERE `type` = 'sticker' AND `date` = {$queue_id}");
+		if($q['uri'] != ''){
+			
+			// Get file name
+			preg_match_all("/\/([0-9]+)\/[^\.]+\.([^\.]+)$/",$q['uri'],$n);
+			
+			if(!isset($n[1][0]) || empty($n[1][0]) || !isset($n[2][0]) || empty($n[1][0])){
+				// Something wrong with url?... Who da fuck is did this?!
+				// Ofc VK can change API without any notice, ass'oles =_=
+				if(substr($q['uri'],15,14) == 'stickers_proxy'){
+					preg_match_all("/sticker_id=([0-9]+)/",$q['uri'],$n);
+					$n[2][0] = 'png';
+				}
+				// And again
+				if(strpos($q['uri'],"vk.com/sticker/") !== false){
+					preg_match_all("/[0-9]\-([0-9]+)\-512b?\-[0-9]/",$q['uri'],$n);
+					// AND AGAIN! >_<
+					if(empty($n[1][0])){
+						preg_match_all("/[0-9]\-([0-9]+)\-512/",$q['uri'],$n);
+					}
+					$n[2][0] = 'png';
+				}
+			}
+			
+			// Check do we have this file already ( useful if you are developer and pucked up attachments DB :D )
+			if(is_file(ROOT.'data/stickers/'.$n[1][0].'.'.$n[2][0])){
+				print $skin->show_alert('info','far fa-file','Файл найден локально');
+				
+				$q = $db->query("UPDATE vk_wall_comments_attach SET `is_local` = 1, `path` = '".$n[1][0].".".$n[2][0]."' WHERE `type` = 'sticker' AND `uri` = '".$q['uri']."'");
+				
+			} else {
+				
+				// Are you reagy kids? YES Capitan Curl!
+				require_once(ROOT.'classes/curl.php');
+				$c = new cu();
+				$c->curl_on();
+				
+				$out = $c->curl_req(array(
+						'uri' => $q['uri'],
+						'method'=>'',
+						'return'=>1
+				));
+				
+				if($out['err'] == 0 && $out['errmsg'] == '' && $out['content'] != '' && substr($out['content'],0,5) != '<html' && substr($out['content'],0,9) != '<!DOCTYPE'){
+					$saved = $c->file_save(array('path'=>ROOT.'data/stickers/','name'=>$n[1][0].'.'.$n[2][0]),$out['content']);
+					if($saved){
+						print $skin->show_alert('success','far fa-file','Файл сохранен');
+						
+						$q = $db->query("UPDATE vk_wall_comments_attach SET `is_local` = 1, `path` = '".$n[1][0].".".$n[2][0]."' WHERE `type` = 'sticker' AND `uri` = '".$q['uri']."'");
+						
+					} else {
+						print $skin->show_alert('danger','fas fa-exclamation-triangle','Ошибка при сохранении файла');
+					}
+				} else {
+					// If error, let's try to see wtf is going on
+					$error_code = false;
+					if($func->is_html_response($out['content'])){
+						$error_code = $skin->remote_server_error($out = $c->curl_req(array('uri' => $q['uri'], 'method'=>'', 'return'=>0 )));
+					}
+					// Something wrong with response or connection
+					$skin->queue_no_data($error_code,"t=catst&id=".$queue_id."&oid=0",$queue_id);
+				}
+			} // end of local file check fail
+		} else {
+			print $skin->show_alert('danger','fas fa-exclamation-triangle','ID найден в очереди но ссылка на файл отсутствует.');
+		}
+	} // End of T = СATST
+	
 	if($don == false) {
 print <<<E
 <div class="alert alert-danger" role="alert"><i class="fas fa-exclamation-triangle"></i> Неправильный тип или ID</div>
@@ -937,6 +1052,40 @@ while($row = $db->return_row($r)){
 	}
 }
 
+// WallCommentsAttach - Photo & Video (preview)
+$first['catph'] = true;
+$first['catvi'] = true;
+$first['catli'] = true;
+$first['catdc'] = true;
+$first['catst'] = false;
+$r = $db->query("SELECT * FROM vk_wall_comments_attach WHERE `path` = '' AND `uri` != '' AND `is_local` = 0 AND `skipthis` = 0 LIMIT 0,{$show}");
+while($row = $db->return_row($r)){
+	$no_queue = false;
+	if($row['type'] == 'photo'){
+		$row['type'] = 'com-photo';
+		print $skin->queue_list_attach($row,$first['catph']);
+		if($first['mwatph'] == true){ $first['mwatph'] = false; }
+	}
+	if($row['type'] == 'video'){
+		$row['type'] = 'com-video';
+		print $skin->queue_list_attach($row,$first['catvi']);
+		if($first['mwatvi'] == true){ $first['mwatvi'] = false; }
+	}
+	if($row['type'] == 'link'){
+		$row['type'] = 'com-link';
+		print $skin->queue_list_attach($row,$first['catli']);
+		if($first['mwatli'] == true){ $first['mwatli'] = false; }
+	}
+	if($row['type'] == 'doc'){
+		$row['type'] = 'com-doc';
+		print $skin->queue_list_attach($row,$first['catdc']);
+		if($first['mwatdc'] == true){ $first['mwatdc'] = false; }
+	}
+	if($row['type'] == 'sticker'){
+		$row['type'] = 'com-sticker';
+		print $skin->queue_list_attach($row,$first['catst']);
+	}
+}
 
 if($all_queue == 0 && $no_queue == true) {
 	print '<tr><td colspan="5" style="text-align:center;color:#bbb;">Очередь закачки пуста</td></tr>';
@@ -955,9 +1104,10 @@ foreach($bar_queue as $mrk => $mrv){
 }
 if(!empty($more)){
 	$more_types = array(
-		'p' => 'фотографий','m'=>'аудиозаписей','v'=>'видео','dc'=>'документов','at'=>'вложений','msat'=>'диалог вложений','mwsat'=>'репост вложений',
+		'p' => 'фотографий','m'=>'аудиозаписей','v'=>'видео','dc'=>'документов','at'=>'вложений','msat'=>'диалог вложений','mwsat'=>'репост вложений','cattach'=>'коммент вложений',
 		'msat-photo'=>'фотографий','msat-link'=>'ссылок','msat-doc'=>'документов','msat-video'=>'видео','msat-sticker'=>'стикеров',
-		'mwsat-photo'=>'фотографий','mwsat-link'=>'ссылок','mwsat-doc'=>'документов','mwsat-video'=>'видео','mwsat-sticker'=>'стикеров'
+		'mwsat-photo'=>'фотографий','mwsat-link'=>'ссылок','mwsat-doc'=>'документов','mwsat-video'=>'видео','mwsat-sticker'=>'стикеров',
+		'cattach-photo'=>'фотографий','cattach-link'=>'ссылок','cattach-doc'=>'документов','cattach-video'=>'видео','cattach-sticker'=>'стикеров'
 	);
 print <<<E
 <tr>

@@ -214,7 +214,7 @@ E;
 	         * Ex. $vk->getAuthorizeURL($api_settings, $callback_url, true);
 			*/
 	        //$authorize_url = $vk->getAuthorizeURL('offline,status,photos,audio,video,docs',$cfg['vk_uri']);
-			$authorize_url = $vk->getAuthorizeURL('offline,status,photos,audio,video,docs');//messages
+			$authorize_url = $vk->getAuthorizeURL('offline,status,photos,audio,video,docs,wall');//messages
 print <<<E
 <div class="text-center">
 	<i class="fab fa-vk" style="font-size:3em;"></i>
@@ -289,8 +289,8 @@ print <<<E
               <span class="text-muted">Стена</span>
             </div>
 			<div class="col-sm-3 mb-4">
-              <h2 class="display-4">{$f->human_thousand($counters['docs'])}</h2>
-              <span class="text-muted">Документы</span>
+              <h2 class="display-4">{$f->human_thousand($counters['comments'])}</h2>
+              <span class="text-muted">Комментарии (стена)</span>
             </div>
 			<div class="col-sm-3 mb-4">
               <h2 class="display-4">{$f->human_thousand($counters['dialogs'])}</h2>

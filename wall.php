@@ -71,6 +71,15 @@ print <<<E
   </div>
 	<input type="text" value="" id="date_b" class="form-control form-control-sm" placeholder="до" aria-label="до" aria-describedby="date_b-addon1" />
 </div>
+<label>Опции:</label>
+<div class="input-group mb-2">
+  <div class="input-group-prepend">
+	<div class="input-group-text">
+      <input type="checkbox" aria-label="С комментариями" value="1" id="comm_only">
+	</div>
+  </div>
+    <div class="ml-2">С комментариями</div>
+</div>
 
 			</div>
 		  </div>
@@ -106,6 +115,8 @@ while($row = $db->return_row($r)){
 print <<<E
 			<div class="paginator-next" style="display:none;"><span class="paginator-val">{$npage}</span><a href="ajax/wall-paginator.php?page={$npage}">следующая страница</a></div>
           </div>
+		  
+		  </div><!-- row -->
 </div>
 E;
 
@@ -114,11 +125,14 @@ $ex_bot = <<<E
 $(document).ready(function() {
 	var notload = false;
 	var list = jQuery("#wall-list");
+	
+	$('.wall-filter-btn').click(function(){ jQuery('.wall-filter-box').show(); });
 
 	// Default options
 	var page = 1;
 	var date_a = 'any';
 	var date_b = 'any';
+	var comm_only = 0;
 	var qsearch = '';
 	var freewall_width = {$cfg['wall_layout_width']};
 
@@ -160,9 +174,10 @@ $(document).ready(function() {
 	
 	urlCommands.bind('qsearch', function(id) { qsearch = id; jQuery("#qsearch").val(urldecode(id)); });
 	urlCommands.bind('date_a', function(id) { date_a = id; /* set date back */ });
+	urlCommands.bind('comm_only', function(id) { comm_only = id; /* set date back */ });
 	
 	// If not a default options -> reload
-	if(date_a != 'any' || date_b != 'any' || qsearch != ''){
+	if(date_a != 'any' || date_b != 'any' || qsearch != '' || comm_only != 0){
 		console.log("Not default options -> reload");
 		urlCommands.urlPush({page:0});
 		ajax_page_reload('wall',new_vars(0));
@@ -172,6 +187,16 @@ $(document).ready(function() {
 		urlCommands.urlPush({qsearch:this.value});
 		if(qsearch != this.value){
 			qsearch = this.value;
+			console.log(this.value);
+			urlCommands.urlPush({page:0});
+			ajax_page_reload('wall',new_vars(0));
+		}
+	});
+	
+	jQuery("#comm_only").on('change', function(){
+		urlCommands.urlPush({comm_only:this.value});
+		if(comm_only != this.value){
+			comm_only = this.value;
 			console.log(this.value);
 			urlCommands.urlPush({page:0});
 			ajax_page_reload('wall',new_vars(0));
@@ -216,8 +241,8 @@ $(document).ready(function() {
 		Input: (int)page
 	*/
 	function new_vars(page){
-		console.log("NewVars: "+"?page="+page+"&date_a="+date_a+"&date_b="+date_b+"&qsearch="+qsearch);
-		return "?page="+page+"&date_a="+date_a+"&date_b="+date_b+"&qsearch="+qsearch;
+		console.log("NewVars: "+"?page="+page+"&date_a="+date_a+"&date_b="+date_b+"&qsearch="+qsearch+"&comm_only="+comm_only);
+		return "?page="+page+"&date_a="+date_a+"&date_b="+date_b+"&qsearch="+qsearch+"&comm_only="+comm_only;
 	}
 	
 	/*

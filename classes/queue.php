@@ -103,9 +103,9 @@ class queue {
 		$path = '';
 		// Allowed types
 		$types = array(
-			'photo' => array('atph','matph','mwatph'),
-			'video' => array('atvi','matvi','mwatvi'),
-			'link'  => array('atli','matli','mwatli')
+			'photo' => array('atph','matph','mwatph','catph'),
+			'video' => array('atvi','matvi','mwatvi','catvi'),
+			'link'  => array('atli','matli','mwatli','catli')
 		);
 		// Flag for work
 		$type_allowed = false;
@@ -126,6 +126,8 @@ class queue {
 					$table = 'messages_attach'; $path = $this->cfg['photo_path'].'messages'; }
 				if($type == 'mwatph'){
 					$table = 'messages_wall_attach'; $path = $this->cfg['photo_path'].'messages_wall'; }
+				if($type == 'catph'){
+					$table = 'wall_comments_attach'; $path = $this->cfg['photo_path'].'wall_comments'; }
 			}
 			if($found_type == 'video'){
 				$db_type = 'video';
@@ -137,6 +139,8 @@ class queue {
 					$table = 'messages_attach'; $path = $this->cfg['video_path'].'messages'; }
 				if($type == 'mwatvi'){
 					$table = 'messages_wall_attach'; $path = $this->cfg['video_path'].'messages_wall'; }
+				if($type == 'catvi'){
+					$table = 'wall_comments_attach'; $path = $this->cfg['video_path'].'wall_comments'; }
 			}
 			if($found_type == 'link'){
 				$db_type = 'link';
@@ -148,6 +152,8 @@ class queue {
 					$table = 'messages_attach'; $path = $this->cfg['photo_path'].'messages'; }
 				if($type == 'mwatli'){
 					$table = 'messages_wall_attach'; $path = $this->cfg['photo_path'].'messages_wall'; }
+				if($type == 'catli'){
+					$table = 'wall_comments_attach'; $path = $this->cfg['photo_path'].'wall_comments'; }
 			}
 		}
 		
@@ -236,7 +242,7 @@ class queue {
 		$path = '';
 		// Allowed types
 		$types = array(
-			'doc' => array('atdc','matdc','mwatdc')
+			'doc' => array('atdc','matdc','mwatdc','catdc')
 		);
 		// Flag for work
 		$type_allowed = false;
@@ -256,6 +262,8 @@ class queue {
 					$table = 'messages_attach'; $path = $this->cfg['docs_path'].'messages'; }
 				if($type == 'mwatdc'){
 					$table = 'messages_wall_attach'; $path = $this->cfg['docs_path'].'messages_wall'; }
+				if($type == 'catdc'){
+					$table = 'wall_comments_attach'; $path = $this->cfg['docs_path'].'wall_comments'; }
 			}
 		}
 		

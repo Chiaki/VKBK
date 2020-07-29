@@ -445,11 +445,12 @@ function apr_jscroller_wall(){
     console.log('JSC pval '+jQuery("div.paginator-next:last > a:last").attr("href"));
     if($.isNumeric(pval)){ urlCommands.urlPush({page:pval}); }
     wall_block.find(".free-wall").each(function(){	// For each image container
-	var images = $(this).find('.brick');		// Get images
+	var images = $(this).find('.brick.wpost');		// Get images
 	if(images.length == 1){				// if solo image - call Freewall and set min-width
-	    var fwl = new Freewall(this);
-	    images.css("width","350px");
-	    freewill(fwl,false,'fw '+images.length);
+	    $(this).justifiedGallery({
+		rowHeight: 500, maxRowHeight: 500, captions: false, margins: 5
+	    });
+	    $(this).justifiedGallery('norewind');	// Process only new items
 	}
 	if(images.length >= 2){				// if 2 or more images - call JfG
 	    $(this).justifiedGallery({

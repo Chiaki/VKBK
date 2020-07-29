@@ -5,6 +5,8 @@ class skin {
 	private $twig;
 	private $twig_data = array();
 	
+	public $session;
+	
 	function __construct(){
 		return true;
 	}
@@ -265,15 +267,17 @@ E;
 		$fa_extra = '';
 		
 		// Allow fancy preview for some types
-		$fancy_types = array('photo','video','link','groups','profiles','m-photo','m-video','m-link','m-doc','m-sticker','mw-photo','mw-video','mw-link','mw-doc','mw-sticker');
+		$fancy_types = array('photo','video','link','groups','profiles','m-photo','m-video','m-link','m-doc','m-sticker','mw-photo','mw-video','mw-link','mw-doc','mw-sticker','com-photo','com-video','com-link','com-doc','com-sticker');
 		if(in_array($row['type'],$fancy_types)){ $fancy = true; }
 		
 		// Icon for AttachTypes
 		$attach_ico = 'paperclip';
 		$attach_msg = array('m-photo','m-video','m-link','m-doc','m-sticker');
 		$attach_wall = array('mw-photo','mw-video','mw-link','mw-doc','mw-sticker');
+		$attach_comm = array('com-photo','com-video','com-link','com-doc','com-sticker');
 		if(in_array($row['type'],$attach_msg)){ $attach_ico = 'paperclip'; }
 		if(in_array($row['type'],$attach_wall)){ $attach_ico = 'share'; }
+		if(in_array($row['type'],$attach_comm)){ $attach_ico = 'comment-alt'; }
 		
 	    if($row['type'] == 'photo'){    $t = 'atph';$row['id'] = $row['attach_id']; }
 	    if($row['type'] == 'video'){    $t = 'atvi';$row['id'] = $row['attach_id']; }
@@ -315,6 +319,17 @@ E;
 	    if($row['type'] == 'mw-sticker'){
 			$t = 'mwatst';$row['id'] = $row['date']; }
 	    
+		if($row['type'] == 'com-photo'){
+			$t = 'catph';$row['id'] = $row['attach_id'];$fa_extra = 'image'; }
+	    if($row['type'] == 'com-video'){
+			$t = 'catvi';$row['id'] = $row['attach_id'];$fa_extra = 'film'; }
+	    if($row['type'] == 'com-link'){
+			$t = 'catli';$row['id'] = $row['attach_id'];$row['owner_id'] = $row['date'];$fa_extra = 'link'; }
+	    if($row['type'] == 'com-doc'){
+			$t = 'catdc';$row['id'] = $row['attach_id'];$fa_extra = 'file'; }
+	    if($row['type'] == 'com-sticker'){
+			$t = 'catst';$row['id'] = $row['date']; }
+		
 	    // Fancybox preview for some types
 	    if($fancy == true){
 			$fbox = 'class="fancybox" data-fancybox="images"';
@@ -338,6 +353,64 @@ return <<<E
   <td class="align-middle"><a href="queue.php?t={$t}&id={$row['id']}{$oid}" class="btn btn-sm btn-outline-primary" id="{$row['id']}" onClick="jQuery('#{$row['id']}').hide();return true;" title="Скачать"><b class="fas fa-download fa-fw"></b></a>{$auto}</td>
 </tr>
 E;
+	}
+	
+	/*
+		Function: comment_show
+		Return html comment (with replies)
+		In:
+		(array) com - comment data
+		(array) u - users data
+		(array) g - groups data
+		(bool)  reply - flag for replies
+	*/
+	public function comment_show($com,$u,$g,$reply = false){
+		global $f;
+		if(!is_array($com)){ return false; }
+		
+		$output = '';
+		$id = $com['from_id'];
+		$sep = '<div class="my-2" style="border-bottom: 1px solid #e7e8ec;"></div>';
+		
+		// Link profiles
+		if($id > 0){
+			$com['from_id'] = $u[$com['from_id']];
+			$ava_path = 'data/profiles/'.$u[$id]['photo_path'];
+		} else {
+			$com['from_id'] = $g[$com['from_id']];
+			$ava_path = 'data/groups/'.$g[$id]['photo_path'];
+		}
+		
+$output .= <<<E
+<div style="max-width: 90ch;">
+E;
+
+		if($output != '' && $reply == false){ $output .= $sep; }
+		
+$output .= <<<E
+<div class="msg-body mb-1"><img src="{$ava_path}" class="wall-ava dlg-ava mb-2 mr-2" />
+	<div class="ml-5 pl-0" style="font-size:0.85rem;">
+		<div><strong>{$com['from_id']['first_name']} {$com['from_id']['last_name']}</strong></div>
+		<div>{$com['text']}</div>
+E;
+		if($com['attach'] == 1){
+			$output .= $f->attachments_get('vk_wall_comments_attach',$com['id'],$com['from_id']['id'],$this->session);
+		}
+$output .= <<<E
+		<div style="color: #939393;">{$f->dialog_date_format($com['date'])}</div>
+E;
+		if(isset($com['thread']) && count($com['thread']) > 0){
+			foreach($com['thread'] as $tk => $tv){
+				$output .= $sep.$this->comment_show($tv,$u,$g,true);
+			}
+		}
+$output .= <<<E
+	</div>
+</div>
+</div>
+E;
+
+		return $output;
 	}
 	
 	/*

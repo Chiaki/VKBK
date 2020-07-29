@@ -36,6 +36,8 @@ $options = '';
 $date_a = (isset($_GET['date_a'])) ? intval($_GET['date_a']) : 0;
 $date_b = (isset($_GET['date_b'])) ? intval($_GET['date_b']) : 0;
 $qsearch = (isset($_GET['qsearch'])) ? $db->real_escape($_GET['qsearch']) : '';
+$comm_only = (isset($_GET['comm_only'])) ? intval($_GET['comm_only']) : 0;
+
 
 // From date X
 if($date_a > 0 && $date_b == 0){ $options .= " AND `date` >= ".$date_a; }
@@ -43,6 +45,9 @@ if($date_a > 0 && $date_b == 0){ $options .= " AND `date` >= ".$date_a; }
 if($date_b > 0 && $date_a == 0){ $options .= " AND `date` <= ".$date_b; }
 // Between
 if($date_a > 0 && $date_b > 0){ $options .= " AND (`date` BETWEEN '".$date_a."' AND '".$date_b."')"; }
+
+// Comments
+if($comm_only > 0){ $options .= " AND `comments` > 0"; }
 
 if($qsearch != ''){
 	$options .= " AND `text` LIKE '%".$qsearch."%'";
@@ -83,7 +88,7 @@ while($row = $db->return_row($r)){
 
 if($next > $cfg['perpage_wall']){
 	$page++;
-	print '<div class="paginator-next" style="display:none;"><span class="paginator-val">'.$page.'</span><a href="ajax/wall-paginator.php?page='.$page.'&date_a='.$date_a.'&date_b='.$date_b.'&qsearch='.$qsearch.'">следующая страница</a></div>';
+	print '<div class="paginator-next" style="display:none;"><span class="paginator-val">'.$page.'</span><a href="ajax/wall-paginator.php?page='.$page.'&date_a='.$date_a.'&date_b='.$date_b.'&qsearch='.$qsearch.'&comm_only='.$comm_only.'">следующая страница</a></div>';
 }
 
 $db->close($res);
