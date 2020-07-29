@@ -2,6 +2,7 @@
 /*
 	vkbk :: /ajax/sync-wall.php
 	since v0.8.9
+	example: do=wall&offset=0&fast=1
 */
 
 header('Content-Type: text/html; charset=UTF-8');
@@ -10,6 +11,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 define('SLF',basename(__DIR__).'/'.basename(__FILE__));
+define('DEBUG_SYNC',false);
 
 // Output > JSON container
 $output = array(
@@ -57,6 +59,11 @@ $skin = new skin();
 // Get Functions
 require_once(ROOT.'classes/func.php');
 $f = new func();
+
+// Get skin if we in debug mode
+if(DEBUG_SYNC === true){
+	echo $skin->header_ajax();
+}
 
 $count = 100;
 
@@ -162,7 +169,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 					}
 					
 					// If we have data to import, do it!
-					if($profile_data != ''){
+					if($profile_data != '' && DEBUG_SYNC == false){
 						$q = $db->query("INSERT INTO vk_profiles (`id`,`first_name`,`last_name`,`sex`,`nick`,`photo_uri`,`photo_path`) VALUES ".$profile_data);
 					}
 				}
@@ -213,7 +220,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 					}
 					
 					// If we have data to import, do it!
-					if($group_data != ''){
+					if($group_data != '' && DEBUG_SYNC == false){
 						$q = $db->query("INSERT INTO vk_groups (`id`,`name`,`nick`,`photo_uri`,`photo_path`) VALUES ".$group_data);
 					}
 				}
@@ -242,7 +249,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 						// Attach found, make a link
 						if(!empty($at['id']) && $atk['photo']['owner_id'] == $vk_session['vk_user']){
 							// Insert OR update
-							$f->wall_attach_update($v['id'],$atk);
+							$f->wall_attach_update($v['id'],$atk,DEBUG_SYNC);
 						} else {
 							$photo_urx = $f->get_largest_photo($atk['photo']);
 							// Check do we have old or new type
@@ -252,7 +259,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 								$photo_uri = $photo_urx['url'];
 							} else { $photo_uri = $photo_urx; }
 							// Save information about attach
-							$f->wall_attach_insert($v['id'],$atk,$photo_uri);
+							$f->wall_attach_insert($v['id'],$atk,$photo_uri,DEBUG_SYNC);
 						}
 					}
 					
@@ -263,7 +270,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 						// Attach found, make a link
 						if(!empty($at['id']) && $atk['video']['owner_id'] == $vk_session['vk_user']){
 							// Insert OR update
-							$f->wall_attach_update($v['id'],$atk);
+							$f->wall_attach_update($v['id'],$atk,DEBUG_SYNC);
 						} else {
 							$photo_uri = $f->get_largest_photo($atk['video']);
 							$atk['video']['player'] = '';
@@ -281,7 +288,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 							}
 							
 							// Save information about attach
-							$f->wall_attach_insert($v['id'],$atk,$photo_uri);
+							$f->wall_attach_insert($v['id'],$atk,$photo_uri,DEBUG_SYNC);
 						}
 					}
 					
@@ -314,7 +321,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 							}
 							
 							// Save information about attach
-							$f->wall_attach_insert($v['id'],$atk,$photo_uri);
+							$f->wall_attach_insert($v['id'],$atk,$photo_uri,DEBUG_SYNC);
 						}
 					}
 					
@@ -327,13 +334,13 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 							// Attach found, make a link
 							if(!empty($at['id']) && $atk['audio']['owner_id'] == $vk_session['vk_user']){
 								// Insert OR update
-								$f->wall_attach_update($v['id'],$atk);
+								$f->wall_attach_update($v['id'],$atk,DEBUG_SYNC);
 							} else {
 								$photo_uri                  = $atk['audio']['url'];
 								$atk['audio']['caption']    = $atk['audio']['artist'];
 								$atk['audio']['access_key'] = '';
 								// Save information about attach
-								$f->wall_attach_insert($v['id'],$atk,$photo_uri);
+								$f->wall_attach_insert($v['id'],$atk,$photo_uri,DEBUG_SYNC);
 							}
 						}
 					}
@@ -359,7 +366,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 						// Attach found, make a link
 						if(!empty($at['id']) && $atk['doc']['owner_id'] == $vk_session['vk_user']){
 							// Insert OR update
-							$f->wall_attach_update($v['id'],$atk);
+							$f->wall_attach_update($v['id'],$atk,DEBUG_SYNC);
 						} else {
 							$atk['doc']['caption'] = $atk['doc']['ext'];
 							$atk['doc']['width'] = 0;
@@ -383,7 +390,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 							// no reason to do until VK disabled audio api
 
 							// Save information about attach
-							$f->wall_attach_insert($v['id'],$atk,$photo_uri);
+							$f->wall_attach_insert($v['id'],$atk,$photo_uri,DEBUG_SYNC);
 						}
 					}
 				}
@@ -411,7 +418,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 								// Attach found, make a link
 								if(!empty($at['id']) && $rpatk['photo']['owner_id'] == $vk_session['vk_user']){
 									// Insert OR update
-									$f->wall_attach_update($rp['id'],$rpatk);
+									$f->wall_attach_update($rp['id'],$rpatk,DEBUG_SYNC);
 								} else {
 									$photo_urx = $f->get_largest_photo($rpatk['photo']);
 									// Check do we have old or new type
@@ -421,7 +428,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 										$photo_uri = $photo_urx['url'];
 									} else { $photo_uri = $photo_urx; }
 									// Save information about attach
-									$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri);
+									$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri,DEBUG_SYNC);
 								}
 							}
 						
@@ -432,7 +439,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 								// Attach found, make a link
 								if(!empty($at['id']) && $rpatk['video']['owner_id'] == $vk_session['vk_user']){
 									// Insert OR update
-									$f->wall_attach_update($rp['id'],$rpatk);
+									$f->wall_attach_update($rp['id'],$rpatk,DEBUG_SYNC);
 								} else {
 									$photo_uri = $f->get_largest_photo($rpatk['video']);
 									$rpatk['video']['player'] = '';
@@ -450,7 +457,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 									}
 									
 									// Save information about attach
-									$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri);
+									$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri,DEBUG_SYNC);
 								}
 							}
 							
@@ -477,7 +484,7 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 									}
 									
 									// Save information about attach
-									$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri);
+									$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri,DEBUG_SYNC);
 								}
 							}
 							
@@ -490,13 +497,13 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 									// Attach found, make a link
 									if(!empty($at['id']) && $rpatk['audio']['owner_id'] == $vk_session['vk_user']){
 										// Insert OR update
-										$f->wall_attach_update($rp['id'],$rpatk);
+										$f->wall_attach_update($rp['id'],$rpatk,DEBUG_SYNC);
 									} else {
 										$photo_uri                    = $rpatk['audio']['url'];
 										$rpatk['audio']['caption']    = $rpatk['audio']['artist'];
 										$rpatk['audio']['access_key'] = '';
 										// Save information about attach
-										$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri);
+										$f->wall_attach_insert($rp['id'],$rpatk,$photo_uri,DEBUG_SYNC);
 									}
 								}
 							}
@@ -512,14 +519,14 @@ if($vk_session['vk_token'] != '' && $token_valid == true){
 							$rerepost = $v['copy_history'][$ch_next]['id'];
 							$rerepost_owner = ($chk > 1) ? $v['copy_history'][$ch_next-1]['owner_id'] : $v['copy_history'][$ch_next]['owner_id'];
 						} else {$rerepost = 0; $rerepost_owner = 0; }
-						$f->wall_post_insert('wall',$rp,$repost_attach,$rerepost,$rerepost_owner,1,false);
+						$f->wall_post_insert('wall',$rp,$repost_attach,$rerepost,$rerepost_owner,1,DEBUG_SYNC);
 					}
 				
 				} // Foreach end
 			} // Reposts end
 			
 			// Insert OR update post
-			$f->wall_post_insert('wall',$v,$attach,$origin,$origin_owner,0,false);
+			$f->wall_post_insert('wall',$v,$attach,$origin,$origin_owner,0,DEBUG_SYNC);
 			
 			// Fast sync option
 			// Check the date of the last post to our posts. If found, stop sync.
@@ -591,6 +598,10 @@ E;
 
 $db->close($res);
 
-print json_encode($output);
+if(DEBUG_SYNC === true){
+	print $skin->footer_ajax();
+} else {
+	print json_encode($output);
+}
 
 ?>

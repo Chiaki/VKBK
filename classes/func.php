@@ -19,12 +19,15 @@ class func {
 	    In:
 	    id - attachID,
 	    atk - attachData
+	    debug - if `true` returns array and not saving data in DB (default: false)
 	*/
-	function wall_attach_update($id,$atk){
+	function wall_attach_update($id,$atk,$debug){
 	    global $db;
 	    
+		$debug_color = 'secondary';
 	    $type = $atk['type'];
 	    
+		if($debug == false){
 	    // Insert OR update
 	    $q = $db->query("INSERT INTO `vk_attach`
 	    (`uid`,`wall_id`,`type`,`is_local`,`attach_id`,`owner_id`,`uri`,`path`,`width`,`height`,`text`,`date`,`access_key`,`title`,`duration`,`player`,`link_url`,`caption`,`skipthis`)
@@ -33,6 +36,10 @@ class func {
 	    ON DUPLICATE KEY UPDATE
 	    `wall_id` = {$id}, `type` = '{$type}', `is_local` = 1, `attach_id` = {$atk[$type]['id']}
 	    ");
+		} else {
+			// Be lazy, Do nothing;
+			print $this->dbg_row( array( array('uid','wall_id','type','is_local','attach_id','owner_id','uri','path','width','height','text','date','access_key','title','duration','player','link_url','caption','skipthis'), array(NULL,$id,$type,1,$atk[$type]['id'],0,'','',0,0,'',0,'','',0,'','','',0) ),true,$debug_color);
+		}
 	}
 	
 	/*
@@ -42,10 +49,12 @@ class func {
 	    id - attachID,
 	    atk - attachData,
 	    photo_uri - uri of image (photo & video) if it not stored in user albums
+	    debug - if `true` returns array and not saving data in DB (default: false)
 	*/
-	function wall_attach_insert($id,$atk,$photo_uri){
+	function wall_attach_insert($id,$atk,$photo_uri,$debug){
 	    global $db;
 	    //print_r($atk);
+		$debug_color = 'primary';
 	    $type = $atk['type'];
 	    $text = '';
 	    if($type == 'photo'){ $text = $atk['photo']['text']; }
@@ -65,7 +74,8 @@ class func {
 	    $atk[$type]['caption']     = !isset($atk[$type]['caption'])    ? '' : $atk[$type]['caption'];
 	    $atk[$type]['access_key']  = !isset($atk[$type]['access_key']) ? '' : $atk[$type]['access_key'];
 	    
-	    // Save information about attach
+	    if($debug == false){
+		// Save information about attach
 	    $q = $db->query("INSERT INTO `vk_attach`
 	    (`uid`,`wall_id`,`type`,`is_local`,`attach_id`,`owner_id`,`uri`,`path`,`width`,`height`,`text`,`date`,`access_key`,`title`,`duration`,`player`,`link_url`,`caption`,`skipthis`)
 	    VALUES
@@ -73,6 +83,10 @@ class func {
 	    ON DUPLICATE KEY UPDATE
 	    `wall_id` = {$id}, `type` = '{$type}', `is_local` = 0, `attach_id` = {$atk[$type]['id']}, `owner_id` = {$atk[$type]['owner_id']}, `uri` = '{$photo_uri}', `width` = {$atk[$type]['width']}, `height` = {$atk[$type]['height']}, `text` = '".$db->real_escape($text)."', `date` = {$atk[$type]['date']}, `access_key` = '{$atk[$type]['access_key']}', `title` = '".$db->real_escape($atk[$type]['title'])."', `duration` = {$atk[$type]['duration']}, `player` = '{$atk[$type]['player']}', `link_url` = '{$atk[$type]['url']}', `caption` = '".$db->real_escape($atk[$type]['caption'])."', `skipthis` = 0
 	    ");
+		} else {
+			// Be lazy, Do nothing;
+			print $this->dbg_row( array( array('uid','wall_id','type','is_local','attach_id','owner_id','uri','path','width','height','text','date','access_key','title','duration','player','link_url','caption','skipthis'), array(NULL,$id,$type,0,$atk[$type]['id'],$atk[$type]['owner_id'],$photo_uri,'',$atk[$type]['width'],$atk[$type]['height'],$db->real_escape($text),$atk[$type]['date'],$atk[$type]['access_key'],$db->real_escape($atk[$type]['title']),$atk[$type]['duration'],$atk[$type]['player'],$atk[$type]['url'],$db->real_escape($atk[$type]['caption']),0) ),true,$debug_color);
+		}
 	}
 	
 	/*
