@@ -249,9 +249,9 @@ if($do !== false){
 				$items_vk_total = 0;
 				
 				$alb = $album_id;
-				if($alb == -15){ $alb = 'saved';   }
-				if($alb == -7) { $alb = 'wall';    }
-				if($alb == -6) { $alb = 'profile'; }
+				if($alb == -15)  { $alb = 'saved';   }
+				if($alb == -7)   { $alb = 'wall';    }
+				if($alb == -6)   { $alb = 'profile'; }
 				$count = 1000;
 				$offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 				
