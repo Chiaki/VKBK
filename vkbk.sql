@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 08, 2018 at 02:02 AM
+-- Generation Time: Jul 28, 2020 at 06:53 PM
 -- Server version: 10.2.13-MariaDB
--- PHP Version: 5.6.32
+-- PHP Version: 7.3.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -90,7 +90,8 @@ CREATE TABLE IF NOT EXISTS `vk_counters` (
   `wall` mediumint(8) UNSIGNED NOT NULL,
   `docs` mediumint(8) UNSIGNED NOT NULL,
   `dialogs` mediumint(8) UNSIGNED NOT NULL,
-  UNIQUE KEY `counters` (`album`,`photo`,`music`,`video`,`wall`,`docs`,`dialogs`)
+  `comments` mediumint(8) UNSIGNED NOT NULL,
+  UNIQUE KEY `counters` (`album`,`photo`,`music`,`video`,`wall`,`docs`,`dialogs`,`comments`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -421,7 +422,7 @@ INSERT INTO `vk_status` (`key`, `val`) VALUES
 ('log_music', ''),
 ('log_photo', ''),
 ('log_video', ''),
-('version', '2019020501'),
+('version', '2020072801'),
 ('auto-queue-audio', '0'),
 ('auto-queue-photo', '0'),
 ('play-local-video', '0');
@@ -498,12 +499,72 @@ CREATE TABLE IF NOT EXISTS `vk_wall` (
   `repost` int(11) NOT NULL,
   `repost_owner` int(11) NOT NULL,
   `is_repost` tinyint(1) NOT NULL,
+  `comments` mediumint(8) UNSIGNED NOT NULL DEFAULT 0,
+  `comm_upd` tinyint(1) NOT NULL,
   UNIQUE KEY `id` (`id`,`owner_id`),
   KEY `from` (`from_id`),
   KEY `owner` (`owner_id`),
   KEY `type` (`post_type`),
   KEY `attach` (`attach`),
   KEY `repost` (`is_repost`),
-  KEY `repost_owner` (`repost_owner`)
+  KEY `repost_owner` (`repost_owner`),
+  KEY `comm_upd` (`comm_upd`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vk_wall_comments`
+--
+
+CREATE TABLE IF NOT EXISTS `vk_wall_comments` (
+  `id` int(11) NOT NULL,
+  `from_id` int(11) NOT NULL,
+  `wall_id` int(11) NOT NULL,
+  `owner_id` int(11) NOT NULL,
+  `date` int(11) NOT NULL,
+  `text` text NOT NULL,
+  `attach` tinyint(1) NOT NULL,
+  `p_stack` text NOT NULL,
+  `t_count` mediumint(8) NOT NULL,
+  `reply_u` int(11) NOT NULL,
+  `reply_c` int(11) NOT NULL,
+  UNIQUE KEY `uid` (`id`,`from_id`,`wall_id`),
+  KEY `attach` (`id`),
+  KEY `owner_id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vk_wall_comments_attach`
+--
+
+CREATE TABLE IF NOT EXISTS `vk_wall_comments_attach` (
+  `uid` int(11) NOT NULL AUTO_INCREMENT,
+  `wall_id` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `is_local` tinyint(1) NOT NULL,
+  `attach_id` int(11) NOT NULL,
+  `owner_id` int(11) NOT NULL,
+  `uri` text NOT NULL,
+  `path` varchar(255) NOT NULL,
+  `width` smallint(5) UNSIGNED NOT NULL,
+  `height` smallint(5) UNSIGNED NOT NULL,
+  `text` text CHARACTER SET utf8mb4 NOT NULL,
+  `date` int(11) NOT NULL,
+  `access_key` varchar(255) NOT NULL,
+  `title` text CHARACTER SET utf8mb4 NOT NULL,
+  `duration` int(11) NOT NULL,
+  `player` text NOT NULL,
+  `link_url` text NOT NULL,
+  `caption` varchar(255) NOT NULL,
+  `skipthis` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `uniqid` (`wall_id`,`attach_id`),
+  KEY `local` (`is_local`),
+  KEY `width` (`width`),
+  KEY `height` (`height`),
+  KEY `skip` (`skipthis`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 COMMIT;
