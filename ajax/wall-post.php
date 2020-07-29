@@ -38,7 +38,7 @@ body {padding-top:10px;margin-bottom:10px;}
 </style>
 E;
 
-print $skin->header(array('extend'=>$ex_top));
+print $skin->header_ajax(array('extend'=>$ex_top));
 
 print <<<E
 <div class="wall-body">
