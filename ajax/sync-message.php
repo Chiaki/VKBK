@@ -5,6 +5,7 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
+define('SLF',basename(__DIR__).'/'.basename(__FILE__));
 // Debug mode (if TRUE - no data would be saved)
 define('SYNC_MSG_DEBUG', false);
 
@@ -241,7 +242,7 @@ E;
 		
 				// Calculate offset and reload page
 				$offset_new = $offset+$count;
-				$output['response']['next_uri'] = '/ajax/sync-message.php?do=dlg&offset='.$offset_new;
+				$output['response']['next_uri'] = SLF.'?do=dlg&offset='.$offset_new;
 				$output['response']['total'] = $vk_dialogs_total;
 			}
 		}
@@ -254,7 +255,7 @@ E;
 			$q0 = $db->query_row("SELECT id,date FROM vk_dialogs WHERE `is_new` = 1 OR `is_upd` = 1 ORDER BY `id` DESC LIMIT 1");
 			if(!empty($q0['date'])){
 				$output['response']['msg'][] = '<div>Найдены сообщения. Нажмите продолжить чтобы начать получение новых сообщений.</div>';
-				$output['response']['next_uri'] = '/ajax/sync-message.php?do=msg&offset=0&dlg_id='.$q0['id'].'&dlg_date='.$q0['date'];
+				$output['response']['next_uri'] = SLF.'?do=msg&offset=0&dlg_id='.$q0['id'].'&dlg_date='.$q0['date'];
 			} else {
 				$output['response']['msg'][] = '<div>Сообщений требующих синхронизации не найдено.</div>';
 			}
@@ -433,7 +434,7 @@ E;
 					$q2 = $db->query_row("SELECT id,date FROM vk_dialogs WHERE `is_new` = 1 OR `is_upd` = 1 ORDER BY `id` DESC LIMIT 1");
 					if(!empty($q2['date'])){
 						$output['response']['msg'][] = '<div>Найден диалог требующий синхронизации.</div>';
-						$output['response']['next_uri'] = '/ajax/sync-message.php?do=msg&offset=0&dlg_id='.$q2['id'].'&dlg_date='.$q2['date'];
+						$output['response']['next_uri'] = SLF.'?do=msg&offset=0&dlg_id='.$q2['id'].'&dlg_date='.$q2['date'];
 					} else {
 						// No unsynced messages left. This is the end...
 						$output['response']['msg'][] = '<div class="alert alert-success mb-0" role="alert"><strong>Все ходы записаны!</strong> Быстрая синхронизация сообщений завершена.</div>';
@@ -451,7 +452,7 @@ E;
 						$q2 = $db->query_row("SELECT id,date FROM vk_dialogs WHERE `is_new` = 1 OR `is_upd` = 1 ORDER BY `id` DESC LIMIT 1");
 						if(!empty($q2['date'])){
 							$output['response']['msg'][] = '<div>Найден следующий диалог требующий синхронизации.</div>';
-							$output['response']['next_uri'] = '/ajax/sync-message.php?do=msg&offset=0&dlg_id='.$q2['id'].'&dlg_date='.$q2['date'];
+							$output['response']['next_uri'] = SLF.'?do=msg&offset=0&dlg_id='.$q2['id'].'&dlg_date='.$q2['date'];
 						} else {
 							// No unsynced messages left. This is the end...
 							$output['response']['msg'][] = '<div class="alert alert-success mb-0" role="alert"><strong>Все ходы записаны!</strong> Быстрая синхронизация сообщений завершена.</div>';
@@ -462,7 +463,7 @@ E;
 		
 						// Calculate offset and reload page
 						$offset_new = $offset+$count;
-						$output['response']['next_uri'] = "/ajax/sync-message.php?do=msg&offset=".$offset_new."&dlg_id=".$dlg_id."&dlg_date=".$dlg_date;
+						$output['response']['next_uri'] = SLF.'?do=msg&offset='.$offset_new.'&dlg_id='.$dlg_id.'&dlg_date='.$dlg_date;
 					}
 	
 				} // Fast sync end
