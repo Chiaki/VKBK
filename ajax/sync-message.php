@@ -8,6 +8,18 @@ header("Pragma: no-cache");
 // Debug mode (if TRUE - no data would be saved)
 define('SYNC_MSG_DEBUG', false);
 
+// Output JSON container
+$output = array(
+	'response' => array(
+		'error_msg' => '',
+		'msg' => array(),
+		'next_uri' => '',
+		'done' => 0,
+		'total' => 0
+	),
+	'error' => false
+);
+
 // Check do we have all needed GET data
 $do = false;
 $do_opts = array('dlg','msg','next');
@@ -28,7 +40,12 @@ if(isset($_GET['dlg_date']) && is_numeric($_GET['dlg_date'])){
 }
 
 if($offset === false || $do === false){
-	die();
+$output['error'] = true;
+$output['response']['error_msg'] = <<<E
+    <div><i class="fas fa-fw fa-times-circle text-danger"></i> Неизвестный запрос</div>
+E;
+	print json_encode($output);
+	exit;
 }
 
 require_once('../cfg.php');
@@ -52,18 +69,6 @@ if(SYNC_MSG_DEBUG === true){
 }
 
 $don = false;
-
-// Output JSON container
-$output = array(
-	'response' => array(
-		'error_msg' => '',
-		'msg' => array(),
-		'next_uri' => '',
-		'done' => 0,
-		'total' => 0
-	),
-	'error' => false
-);
 
 require_once ROOT ."/classes/vk-auth/wrapper.php";
 $vka = new \VKA\dev($cfg['yt_dl_login'],$cfg['yt_dl_passw'],$cfg['vk_api_version']);
