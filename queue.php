@@ -644,73 +644,49 @@ if(isset($_GET['id']) && isset($_GET['t'])){
 	// Message - Attach - Photo
 	if($queue_id > 0 && $_GET['t']=='matph' && $queue_oid != 0){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_attach($queue_id,$queue_oid,'matph',$_GET['auto']);
-		
 	} // End of T = MATPH
 	
 	// Message - Attach - Documents
 	if($queue_id > 0 && $_GET['t']=='matdc'){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_double_attach($queue_id,$queue_oid,'matdc',$_GET['auto']);
-		
 	} // End of T = MATDC
 	
 	// Message - Attach - Link
 	if($queue_id > 0 && $_GET['t']=='matli' && $queue_oid != 0){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_attach($queue_id,$queue_oid,'matli',$_GET['auto']);
-		
 	} // End of T = MATLI
 	
 	// Message - Attach - Video (preview)
 	if($queue_id > 0 && $_GET['t']=='matvi' && $queue_oid != 0){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_attach($queue_id,$queue_oid,'matvi',$_GET['auto']);
-		
 	} // End of T = MATVI
 	
 	// Message - Wall - Attach - Photo
 	if($queue_id > 0 && $_GET['t']=='mwatph' && $queue_oid != 0){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_attach($queue_id,$queue_oid,'mwatph',$_GET['auto']);
-		
 	} // End of T = MWATPH
 	
 	// Message - Wall - Attach - Video
 	if($queue_id > 0 && $_GET['t']=='mwatvi' && $queue_oid != 0){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_attach($queue_id,$queue_oid,'mwatvi',$_GET['auto']);
-		
 	} // End of T = MWATVI
 	
 	// Message - Wall - Attach - Link
 	if($queue_id > 0 && $_GET['t']=='mwatli' && $queue_oid != 0){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_attach($queue_id,$queue_oid,'mwatli',$_GET['auto']);
-		
 	} // End of T = MWATLI
 	
 	// Message - Wall - Attach - Document
 	if($queue_id > 0 && $_GET['t']=='mwatdc'){
 		$don = true;
-		
-		// Call Mr.Queue to save us!
 		$qe->save_as_double_attach($queue_id,$queue_oid,'mwatdc',$_GET['auto']);
-		
 	} // End of T = MWATDC
 	
 	if($don == false) {
