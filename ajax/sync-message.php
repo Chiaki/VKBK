@@ -217,24 +217,11 @@ E;
 		}
 	} // Check & Process END
 	
+	// Calculate FROM and TO values
+	$from_to = $f->get_offset_range($offset,$count,$vk_dialogs_total);
 	if($output['error'] != true){
-		// I want this logic in one line, but this blow my mind so...
-		$to = 0;
-		if($offset == 0){
-			$to = $count;
-			if($count > $vk_dialogs_total){
-				$to = $vk_dialogs_total;
-			}
-		} else {
-			if(($count+$offset) > $vk_dialogs_total){
-				$to = $vk_dialogs_total;
-			} else {
-				$to = $count+$offset;
-			}
-		}
-		if($offset > 0){ $ot = $offset; } else { $ot = 1; }
-	
-		$output['response']['msg'][] = '<div>Получаем диалоги <b> '.$ot.' - '.$to.' / '.$vk_dialogs_total.'</b> из ВК.</div>';
+		
+		$output['response']['msg'][] = '<div>Получаем диалоги <b> '.$from_to['from'].' - '.$from_to['to'].' / '.$vk_dialogs_total.'</b> из ВК.</div>';
 	
 		// Let's recount dialogs
 		$q5 = $db->query("UPDATE vk_counters SET `dialogs` = (SELECT COUNT(*) FROM vk_dialogs)");
@@ -417,28 +404,14 @@ E;
 
 				} // Check & Process END
 				
-				// I want this logic in one line, but this blow my mind so...
-				$to = 0;
-				if($offset == 0){
-					$to = $count;
-					if($count > $vk_msg_total){
-						$to = $vk_msg_total;
-					}
-				} else {
-					if(($count+$offset) > $vk_msg_total){
-						$to = $vk_msg_total;
-					} else {
-						$to = $count+$offset;
-					}
-				}
+				// Calculate FROM and TO values
+				$from_to = $f->get_offset_range($offset,$count,$vk_msg_total);
 				
 				if(SYNC_MSG_DEBUG == true){
 					echo '<p>Offset: '.$offset.' | Count: '.$count.' | Total: '.$vk_msg_total.'</p>';
 				}
 				
-				if($offset > 0){ $ot = $offset; } else { $ot = 1; }
-				
-				$output['response']['msg'][] = '<div>Получаем сообщения <b> '.$ot.' - '.$to.' / '.$vk_msg_total.'</b>'.($quick == true ? ' (быстрая синхронизация) ' : '').'</div>';
+				$output['response']['msg'][] = '<div>Получаем сообщения <b> '.$from_to['from'].' - '.$from_to['to'].' / '.$vk_msg_total.'</b>'.($quick == true ? ' (быстрая синхронизация) ' : '').'</div>';
 				
 				if(SYNC_MSG_DEBUG == true){
 					echo '<p>Quick: '.$quick.' | Quick sync stop: '.$quick_sync_stop.'</p>';
