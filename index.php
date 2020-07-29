@@ -281,6 +281,10 @@ print <<<E
               <span class="text-muted">Видео</span>
             </div>
 			<div class="col-sm-3 mb-4">
+              <h2 class="display-4">{$f->human_thousand($counters['docs'])}</h2>
+              <span class="text-muted">Документы</span>
+            </div>
+			<div class="col-sm-3 mb-4">
               <h2 class="display-4">{$f->human_thousand($counters['wall'])}</h2>
               <span class="text-muted">Стена</span>
             </div>
@@ -303,10 +307,6 @@ print <<<E
 			<div class="col-sm-3 mb-4">
               <h2 class="display-4">{$f->human_thousand($messages_attach['count'])}</h2>
               <span class="text-muted">Вложения (диалоги)</span>
-            </div>
-			<div class="col-sm-3 mb-4">
-              <a href="sync.php"><h2 class="display-4"><i class="fa fa-sync fa-fw text-success"></i></h2>
-              <span class="text-muted" style="text-decoration:underline;">Синхронизация</span></a>
             </div>
 			
           </div>

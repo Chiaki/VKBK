@@ -197,6 +197,7 @@ E;
 			{$this->navigation_item('docs.php'	 ,'Документы'		,'far fa-file'				,$s['docs'])}
 			{$this->navigation_item('dialogs.php','Диалоги'			,'far fa-comments'		,$s['dialogs'])}
 			{$this->navigation_item('queue.php'	 ,'Очередь закачки'	,'fa fa-cloud-download-alt'	,'')}
+			{$this->navigation_item('sync.php'	 ,'Синхронизация'	,'fa fa-sync'	,'')}
 			
 			<li class="nav-item tip" data-placement="bottom" data-toggle="tooltip" data-original-title="Настройки">
 				<a class="nav-link" data-morphing id="morphing" data-src="ajax/settings.php" href="javascript:;"><i class="fa fa-sliders-h"></i><span class="xs-show">Настройки</span></a></li>
