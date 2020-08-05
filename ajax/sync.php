@@ -566,7 +566,7 @@ if($do !== false){
 					}
 					
 					array_unshift($log,"Новые видеозаписи добавлены в очередь: <b>".sizeof($items_create)."</b>\r\n");
-					$output['response']['msg'][] = '<div><i class="far fa-fw fa-circle"></i> Новые видеозаписи добавлены в очередь: <b>'.sizeof($items_create).'</b></div>';
+					$output['response']['msg'][] = '<div><i class="fa fa-fw fa-plus-circle text-info"></i> Новые видеозаписи добавлены в очередь: <b>'.sizeof($items_create).'</b></div>';
 				}
 				
 				// Offset done.
