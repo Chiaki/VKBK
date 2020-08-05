@@ -522,7 +522,7 @@ if($do !== false){
 								'title' => ($v['title'] == '' ? '- Unknown '.$v['id'].' -' : $v['title']),
 								'desc' => ($v['description'] == '' ? '' : $v['description']),
 								'duration' => (!is_numeric($v['duration']) ? 0 : $v['duration']),
-								'preview_uri' => $func->get_video_image($v),
+								'preview_uri' => $func->get_largest_photo($v),
 								'date' => $v['adding_date'],
 								'player_uri' => $v['player'],
 								'access_key' => (!isset($v['access_key']) ? '' : $v['access_key'])
