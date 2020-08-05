@@ -59,6 +59,11 @@ $skin = new skin();
 require_once(ROOT.'classes/func.php');
 $func = new func();
 
+// Get skin if we in debug mode
+if(DEBUG_SYNC === true){
+	echo $skin->header_ajax();
+}
+
 if($do !== false){
 	
 	$don = false;
@@ -477,7 +482,7 @@ if($do !== false){
 				
 				$items_list = array('id'=>array(),'uid'=>array());
 				// Get local IDs
-				$q = $db->query("SELECT id,date_added FROM vk_videos WHERE `id` IN(".implode(',',$items_vk_list['id']).")");
+				$q = $db->query("SELECT id,date_added FROM `vk_videos` WHERE `id` IN(".implode(',',$items_vk_list['id']).")");
 				while($row = $db->return_row($q)){
 					$items_list['id'][] = $row['id'];
 					$items_list['uid'][] = $row['id'].'_'.$row['date_added'];
@@ -492,7 +497,8 @@ if($do !== false){
 					$q = $db->query("UPDATE vk_videos SET `deleted` = 0 WHERE `id` IN(".implode(',',$items_list['id']).") AND `in_queue` = 0");
 					$moved = $db->affected_rows();
 					array_unshift($log,"Пропускаем сохраненные ранее видеозаписи: <b>".$moved."</b>\r\n");
-					$output['response']['msg'][] = '<div><i class="far fa-fw fa-circle"></i> Пропускаем сохраненные ранее видеозаписи: <b>'.$moved.'</b></div>';
+					if(DEBUG_SYNC === true){ echo "Пропускаем сохраненные видеозаписи: <b>".$moved."</b><br/>"; }
+					$output['response']['msg'][] = '<div><i class="far fa-fw fa-circle"></i> Пропускаем сохраненные видеозаписи: <b>'.$moved.'</b></div>';
 					unset($moved);
 				}
 				
@@ -528,6 +534,9 @@ if($do !== false){
 							unset($items_create[$k]);
 							
 							array_unshift($log,"Skip: <b>".($v['title'] == '' ? 'ID '.$v['id'] : $v['title'])."</b> -> ".$v['content_restricted_message']."\r\n");
+							if(DEBUG_SYNC === true){
+								echo "Skip: <b>".($v['title'] == '' ? 'ID '.$v['id'] : $v['title'])."</b> -> ".$v['content_restricted_message']."<br/>";
+							}
 							$output['response']['msg'][] = '<div class="text-danger"><i class="fas fa-fw fa-exclamation-triangle"></i> Skip: <b>'.($v['title'] == '' ? 'ID '.$v['id'] : $v['title']).'</b> -> '.$v['content_restricted_message'].'</div>';
 							
 						}
@@ -550,7 +559,7 @@ if($do !== false){
 					
 					foreach($data_sql as $k => $v){
 						if(DEBUG_SYNC === false){
-						$q = $db->query("INSERT INTO vk_videos (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v}");
+							$q = $db->query("INSERT INTO `vk_videos` (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v}");
 						} else {
 							echo "INSERT INTO vk_videos (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v}";
 						}
@@ -821,6 +830,10 @@ E;
 
 $db->close($res);
 
-print json_encode($output);
+if(DEBUG_SYNC === true){
+	print $skin->footer_ajax();
+} else {
+	print json_encode($output);
+}
 
 ?>
