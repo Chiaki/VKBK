@@ -39,7 +39,7 @@ body {padding:0px;margin:0px;overflow:hidden;}
 </style>
 E;
 
-print $skin->header(array('extend'=>$ex_top));
+print $skin->header_ajax(array('extend'=>$ex_top));
 
 print <<<E
 <div class="col-sm-12 wall-body" style="padding:0;">
