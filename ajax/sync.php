@@ -424,42 +424,102 @@ if($do !== false){
 			$don = true;
 			
 			// Check do we have a PART in GET
-			$part = (isset($_GET['part'])) ? intval($_GET['part']) : '';
+			$part = (isset($_GET['part'])) ? intval($_GET['part']) : 0;
 			
-			// No PART? Let's start from the beginning.
-			if($part == ''){
-				$log = array();
-				// Clean DB log before write something new
-				$q = $db->query("UPDATE vk_status SET `val` = '' WHERE `key` = 'log_video'");
-				// Set all items to `deleted` state
-				$q = $db->query("UPDATE vk_videos SET `deleted` = 1 WHERE `in_queue` = 0");
+			// Part 0 - sync albums
+			if($part == 0){
+				$count = 50; // Maximum: 50
 				
-				array_unshift($log,"Начинаю синхронизацию...\r\n");
+				// Get video albums
+				$api = $vk->api('video.getAlbums', array(
+					'owner_id' => $vk_session['vk_user'],
+					'offset' => $offset,
+					'count' => $count,
+					'extended' => 1, // 1 — возвращет дополнительные поля count, photo_320, photo_160 и updated_time для каждого альбома.
+					'need_system' => 1
+				));
 				
-				$q = $db->query("UPDATE vk_status SET `val` = CONCAT('".implode("\r\n",$log)."',`val`) WHERE `key` = 'log_video'");
+				$api_albums = array();
+				$items_vk_total = 0;
 				
-				// Reload
-				$output['response']['msg'][] = '<div><i class="fas fa-fw fa-play-circle text-info"></i> <b>Свет, камера, мотор!</b> Начинаю синхронизацию...</div>';
-				$output['response']['next_uri'] = SLF.'?do=video&part=1';
-				$output['response']['timer'] = $cfg['sync_video_start_cd'];
-			} // end if PART is not found
+				if($api['response'] != ''){
+					$don = true;
+					$api_albums = $api['response']['items'];
+					$items_vk_total = $api['response']['count'];
+					$output['response']['done'] = $count;
+					$output['response']['total'] = $items_vk_total;
+				}
+				
+				$album_ids = '';
+				
+				if(!empty($api_albums)){
+					foreach($api_albums as $k => $v){
+						$album_ids .= ($album_ids != '' ? ',' : '').$v['id'];
+					}
+					
+					if($album_ids != ''){
+						$album_list = array();
+						$q = $db->query("SELECT * FROM `vk_videos_albums` WHERE id IN(".$album_ids.")");
+						while($row = $db->return_row($q)){
+							$album_list[$row['id']] = $row;
+						}
+						
+						foreach($api_albums as $ak => $av){
+							if(!isset($album_list[$av['id']])){
+								// Insert new
+								$func->video_album_insert($av,DEBUG_SYNC);
+							} else {
+								// Update
+								if($av['updated_time'] > $album_list[$av['id']]['updated'] || $av['count'] > $album_list[$av['id']]['count']){
+									if(DEBUG_SYNC == false){
+										$q = $db->query("UPDATE `vk_videos_albums` SET `updated` = {$av['updated_time']}, `count` = {$av['count']}, `is_upd` = 1 WHERE `id` = {$av['id']} ");
+									} else {
+										// Be lazy, Do nothing;
+										print $func->dbg_row( array( array('id','name','updated','count','is_new','is_upd'), array($v['id'],$db->real_escape($func->removeEmoji($v['title'])),$v['updated_time'],$v['count'],0,1) ),true,'success');
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				// Calculate FROM and TO values
+				$from_to = $func->get_offset_range($offset,$count,$items_vk_total);
+				if($output['error'] != true){
+					$output['response']['msg'][] = '<div>Получаем альбомы <b> '.$from_to['from'].' - '.$from_to['to'].' / '.$items_vk_total.'</b> из ВК.</div>';
+					$output['response']['timer'] = $cfg['sync_video_start_cd'];
+					
+					// If we done with all items
+					if(($offset+$count) >= $items_vk_total){
+						// No unsynced dialogs left. This is the end...
+						$output['response']['msg'][] = '<div><i class="fas fa-fw fa-play-circle text-info"></i> <b>Свет, камера, мотор!</b> Начинаю синхронизацию...</div>';
+						$output['response']['next_uri'] = SLF.'?do=video&part=1';
+					} else {
+						// Some items is not synced yed
+						$output['response']['msg'][] = '<div>Перехожу к следующей порции...</div>';
+						// Calculate offset and reload page
+						$offset_new = $offset+$count;
+						$output['response']['next_uri'] = SLF.'?do=video&part=0&offset='.$offset_new;
+						$output['response']['total'] = $items_vk_total;
+					}
+				}
+			} // end of PART 0
 			
-			// Hey, PART found!
-			if($part >= 1){
-				$log = array();
+			// Hey, PART 1 - standard sync!
+			if($part == 1){
 				
-				array_unshift($log,"Синхронизация начата.\r\n");
+				$alb = (isset($_GET['alb']) && is_numeric($_GET['alb'])) ? $_GET['alb'] : false;
 				
 				$items_vk_total = 0;
 				$count = 200;
-				$offset = ($part-1)*$count;
 				
 				// We logged in, get VK items
 				$api = $vk->api('video.get', array(
 					'owner_id' => $vk_session['vk_user'],
 					'extended' => 0, // возвращать ли информацию о настройках приватности видео для текущего пользователя
 					'offset' => $offset,
-					'count' => $count
+					'count' => $count,
+					'album_id' => ($alb !== false ? $alb : '')
 				));
 				
 				$items_vk = $api['response']['items'];
@@ -477,7 +537,6 @@ if($do !== false){
 				// Calculate FROM and TO values
 				$from_to = $func->get_offset_range($offset,$count,$items_vk_total);
 				
-				array_unshift($log,"Синхронизация видеозаписей <b> ".$from_to['from']." - ".$from_to['to']." / ".$items_vk_total."</b>.\r\n");
 				$output['response']['msg'][] = '<div><i class="far fa-fw fa-circle"></i> Синхронизация видеозаписей <b> '.$from_to['from'].' - '.$from_to['to'].' / '.$items_vk_total.'</b>.</div>';
 				
 				$items_list = array('id'=>array(),'uid'=>array());
@@ -493,10 +552,9 @@ if($do !== false){
 				$items_create = array_diff($items_vk_list['uid'],$items_list['uid']);
 				
 				if(sizeof($items_list['id']) > 0){
-					// Update status for local IDs which was found
-					$q = $db->query("UPDATE vk_videos SET `deleted` = 0 WHERE `id` IN(".implode(',',$items_list['id']).") AND `in_queue` = 0");
+					$q = $db->query("SELECT `id` FROM `vk_videos` WHERE `id` IN(".implode(',',$items_list['id']).") AND `in_queue` = 0");
 					$moved = $db->affected_rows();
-					array_unshift($log,"Пропускаем сохраненные ранее видеозаписи: <b>".$moved."</b>\r\n");
+					
 					if(DEBUG_SYNC === true){ echo "Пропускаем сохраненные видеозаписи: <b>".$moved."</b><br/>"; }
 					$output['response']['msg'][] = '<div><i class="far fa-fw fa-circle"></i> Пропускаем сохраненные видеозаписи: <b>'.$moved.'</b></div>';
 					unset($moved);
@@ -515,8 +573,7 @@ if($do !== false){
 					
 					foreach($items_vk as $k => $v){
 						if(isset($items_create_ids[$v['adding_date']]) && $items_create_ids[$v['adding_date']] = $v['id'] && !isset($v['content_restricted'])){
-
-						
+							
 							$items_data[$v['id']] = array(
 								'owner_id' => (!is_numeric($v['owner_id']) ? 0 : $v['owner_id']),
 								'title' => ($v['title'] == '' ? '- Unknown '.$v['id'].' -' : $v['title']),
@@ -533,7 +590,6 @@ if($do !== false){
 							// Remove restricted item from creation list
 							unset($items_create[$k]);
 							
-							array_unshift($log,"Skip: <b>".($v['title'] == '' ? 'ID '.$v['id'] : $v['title'])."</b> -> ".$v['content_restricted_message']."\r\n");
 							if(DEBUG_SYNC === true){
 								echo "Skip: <b>".($v['title'] == '' ? 'ID '.$v['id'] : $v['title'])."</b> -> ".$v['content_restricted_message']."<br/>";
 							}
@@ -549,6 +605,7 @@ if($do !== false){
 					$data_i = 1;
 					$data_k = 0;
 					foreach($items_data as $k => $v){
+						if(is_array($v['preview_uri'])){ $v['preview_uri'] = $v['preview_uri']['url']; }
 						$data_sql[$data_k] .= ($data_sql[$data_k] != '' ? ',' : '')."({$k},{$v['owner_id']},'".$db->real_escape($v['title'])."','".$db->real_escape($v['desc'])."',{$v['duration']},'{$v['preview_uri']}','','{$v['player_uri']}','{$v['access_key']}',{$v['date']},0,0,true,'',0,'',0,0)";
 						$data_i++;
 						if($data_i > $data_limit){
@@ -559,13 +616,13 @@ if($do !== false){
 					
 					foreach($data_sql as $k => $v){
 						if(DEBUG_SYNC === false){
-							$q = $db->query("INSERT INTO `vk_videos` (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v}");
+							$q = $db->query("INSERT INTO `vk_videos` (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v} ON DUPLICATE KEY UPDATE `id`=`id`");
 						} else {
-							echo "INSERT INTO vk_videos (`id`,`owner_id`,`title`,`desc`,`duration`,`preview_uri`,`preview_path`,`player_uri`,`access_key`,`date_added`,`date_done`,`deleted`,`in_queue`,`local_path`,`local_size`,`local_format`,`local_w`,`local_h`) VALUES {$v}";
+							print $func->dbg_row( array( array('id','owner_id','title','desc','duration','preview_uri','preview_path','player_uri','access_key','date_added','date_done','deleted','in_queue','local_path','local_size','local_format','local_w','local_h'), explode(',',$v) ),true,'primary');
 						}
 					}
 					
-					array_unshift($log,"Новые видеозаписи добавлены в очередь: <b>".sizeof($items_create)."</b>\r\n");
+					
 					$output['response']['msg'][] = '<div><i class="fa fa-fw fa-plus-circle text-info"></i> Новые видеозаписи добавлены в очередь: <b>'.sizeof($items_create).'</b></div>';
 				}
 				
@@ -576,40 +633,40 @@ if($do !== false){
 				if(($offset+$count) >= $items_vk_total){
 				
 					// No unsynced items left. This is the end...
-					// Let's make recount items
-					$total = array('video'=>0,'deleted'=>0);
 					
-					$q1 = $db->query_row("SELECT COUNT(id) as v FROM vk_videos WHERE `deleted` = 0");
-					$total['video'] = $q1['v'];
-					
-					$q2 = $db->query_row("SELECT COUNT(id) as v FROM vk_videos WHERE `deleted` = 1");
-					$total['deleted'] = $q2['v'];
-					
-					// Update counters
-					if(DEBUG_SYNC === false){
-					$q5 = $db->query("UPDATE vk_counters SET `video` = (SELECT COUNT(*) FROM vk_videos WHERE `deleted` = 0)");
+					if($alb !== false){
+						if(DEBUG_SYNC === false){
+							$q0 = $db->query("UPDATE `vk_videos_albums` SET `is_new` = 0, `is_upd` = 0 WHERE `id` = ".$alb);
+						}
 					}
 					
-					array_unshift($log,"Синхронизация видеозаписей завершена.\r\nВидео - <b>".$total['video']."</b>, на удаление - <b>".$total['deleted']."</b>\r\n");
-					$output['response']['msg'][] = '<div><i class="fa fa-fw fa-check-circle text-success"></i> <strong>Снято!</strong> Синхронизация видеозаписей завершена.<br/>Видео - <b>'.$total['video'].'</b>, на удаление - <b>'.$total['deleted'].'</b></div>';
-					
+					// Now check new or updated albums
+					$q1 = $db->query_row("SELECT `id` FROM `vk_videos_albums` WHERE `is_new` = 1 OR `is_upd` = 1 LIMIT 1");
+					if(!empty($q1['id'])){
+						$output['response']['msg'][] = '<div><i class="far fa-fw fa-pause-circle"></i> В альбомах есть изменения...</div>';
+						$output['response']['next_uri'] = SLF.'?do=video&part=1&alb='.$q1['id'];
+						$output['response']['timer'] = $cfg['sync_video_next_cd'];
+					} else {
+						$output['response']['msg'][] = '<div><i class="fa fa-fw fa-check-circle text-success"></i> <strong>Снято!</strong> Синхронизация видеозаписей завершена.</div>';
+					}
 				} else {
 					// Some items is not synced yed
-					array_unshift($log,"Перехожу к следующей порции видеозаписей...\r\n");
-					
 					// Calculate offset and reload
-					$part_new = $part+1;
 					
 					$output['response']['msg'][] = '<div><i class="far fa-fw fa-pause-circle"></i> Перехожу к следующей порции видеозаписей...</div>';
-					$output['response']['next_uri'] = SLF.'?do=video&part='.$part_new;
+					$offset_new = $offset+$count;
+					if($alb !== false){
+						$output['response']['next_uri'] = SLF.'?do=video&part=1&alb='.$alb.'&offset='.$offset_new;
+					} else {
+						$output['response']['next_uri'] = SLF.'?do=video&part=1&offset='.$offset_new;
+					}
+					$output['response']['total'] = $items_vk_total;
 					$output['response']['timer'] = $cfg['sync_video_next_cd'];
 				}
 				
-			} // end if part
-			// Save log to the DB
-			if(DEBUG_SYNC === false){
-			$q = $db->query("UPDATE vk_status SET `val` = CONCAT('".implode("\r\n",$log)."',`val`) WHERE `key` = 'log_video'");
-			}
+			} // end of PART 1
+			
+			if(DEBUG_SYNC == true){ echo $output['response']['next_uri']; }
 		} // DO Video end
 		
 		// Documents sync

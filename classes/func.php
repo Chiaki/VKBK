@@ -425,6 +425,33 @@ class func {
 	}
 	
 	/*
+	    Function: get_video_url
+	    If {files} available, gets best of desired and return it's url
+	    In:
+	    (array) data - item data
+	    (int) q - desirable quality
+	    Out: (array) (string) url - url to file, (int) quality - video quality
+	*/
+	function get_video_url($data,$q = 0){
+		if(!isset($data['files'])){ return array('url'=>false,'quality'=>0); }
+	    $url = '';
+		$quality = 0;
+		$ext = '';
+		foreach($data['files'] as $k => $v){
+			// mp4_1080
+			$i = explode('_',$k);
+			
+			if(isset($i[1]) && $quality <= $i[1] && ($i[1] < $q && $q > 0 )){
+				$url = $v;
+				$ext = $k[0];
+				$quality = $i[1];
+			}
+		}
+		
+		return array('url'=>$url,'quality'=>$quality);
+	}
+	
+	/*
 	  function get_largest_doc_image
 	  Returns a largest image of document preview
 	  In: data array
@@ -1265,6 +1292,29 @@ $output .= <<<E
 E;
 	    return $output;
 	} // Dialog Wall Post end
+	
+	/*
+	    Function: video_album_insert
+	    In:
+	    v - albumData,
+	    debug - if `true` returns array and not saving data in DB (default: false)
+	*/
+	function video_album_insert($v,$debug){
+	    global $db;
+	    
+		if($debug == false){
+			$q = $db->query("INSERT INTO `vk_videos_albums`
+			(`id`,`name`,`updated`,`count`,`is_new`,`is_upd`)
+			VALUES
+			({$v['id']},'".$db->real_escape($this->removeEmoji($v['title']))."',{$v['updated_time']},{$v['count']},1,0)
+			ON DUPLICATE KEY UPDATE
+			`updated` = {$v['updated_time']}, `count` = {$v['count']}
+			");
+		} else {
+			// Be lazy, Do nothing;
+			print $this->dbg_row( array( array('id','name','updated','count','is_new','is_upd'), array($v['id'],$db->real_escape($this->removeEmoji($v['title'])),$v['updated_time'],$v['count'],1,0) ),true,'info');
+		}
+	}
 	
 	/*
 	    Function: is_html_response

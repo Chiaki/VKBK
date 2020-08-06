@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 28, 2020 at 06:53 PM
+-- Generation Time: Aug 06, 2020 at 11:07 AM
 -- Server version: 10.2.13-MariaDB
 -- PHP Version: 7.3.0
 
@@ -422,7 +422,7 @@ INSERT INTO `vk_status` (`key`, `val`) VALUES
 ('log_music', ''),
 ('log_photo', ''),
 ('log_video', ''),
-('version', '2020072801'),
+('version', '2020080601'),
 ('auto-queue-audio', '0'),
 ('auto-queue-photo', '0'),
 ('play-local-video', '0');
@@ -480,6 +480,24 @@ CREATE TABLE IF NOT EXISTS `vk_videos` (
   KEY `local_w` (`local_w`),
   KEY `local_h` (`local_h`),
   KEY `format` (`local_format`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vk_videos_albums`
+--
+
+CREATE TABLE IF NOT EXISTS `vk_videos_albums` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `updated` int(11) NOT NULL,
+  `count` int(11) NOT NULL,
+  `is_new` tinyint(1) NOT NULL,
+  `is_upd` tinyint(1) NOT NULL,
+  UNIQUE KEY `id` (`id`),
+  KEY `is_new` (`is_new`),
+  KEY `is_upd` (`is_upd`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -567,4 +585,3 @@ CREATE TABLE IF NOT EXISTS `vk_wall_comments_attach` (
   KEY `height` (`height`),
   KEY `skip` (`skipthis`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-COMMIT;

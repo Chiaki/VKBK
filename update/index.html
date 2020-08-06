@@ -36,6 +36,31 @@
     </div>
     
     <div class="my-3 p-3 bg-white rounded box-shadow">
+        <h6 class="border-bottom border-gray pb-2 mb-0">0.9.0 &rarr; 0.9.1</h6>
+        <div class="text-muted pt-3">
+          <div class="pb-0 mb-0 small lh-125">
+            <span class="d-block">
+<pre>
+CREATE TABLE IF NOT EXISTS `vk_videos_albums` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `updated` int(11) NOT NULL,
+  `count` int(11) NOT NULL,
+  `is_new` tinyint(1) NOT NULL,
+  `is_upd` tinyint(1) NOT NULL,
+  UNIQUE KEY `id` (`id`),
+  KEY `is_new` (`is_new`),
+  KEY `is_upd` (`is_upd`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+UPDATE `vk_status` SET `val` = '2020080601' WHERE `key` = 'version';
+</pre>
+	    </span>
+          </div>
+        </div>
+    </div>
+    
+    <div class="my-3 p-3 bg-white rounded box-shadow">
         <h6 class="border-bottom border-gray pb-2 mb-0">0.8.10 &rarr; 0.9.0</h6>
         <div class="text-muted pt-3">
           <div class="pb-0 mb-0 small lh-125">

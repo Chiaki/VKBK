@@ -91,7 +91,8 @@ class dev {
 	private function vka_methodAllowed($method){
 		$allowed = array(
 			'messages.getConversations' => true,
-			'messages.getHistory' => true
+			'messages.getHistory' => true,
+			'video.get' => true
 		);
 		
 		return (isset($allowed[$method]) ? true : false );
@@ -132,6 +133,19 @@ class dev {
 				'param_extended' => 0,
 				'param_fields' => '',
 				'param_group_id' => '',
+				'param_v' => $this->api
+			],
+			'video.get' => [
+				'act' => 'a_run_method',
+				'al' => 1,
+				'hash' => '',
+				'method' => 'video.get',
+				'param_owner_id' => 0,
+				'param_videos' => '',
+				'param_album_id' => '',
+				'param_count' => 1,
+				'param_offset' => 0,
+				'param_extended' => 0,
 				'param_v' => $this->api
 			]
 		);
